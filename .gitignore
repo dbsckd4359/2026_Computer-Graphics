@@ -1,0 +1,9 @@
+*
+!/.gitignore
+!/Audio/**
+!/Images/**
+!/models/**
+!/scripts/**
+!/Shaders/**
+!/CG_Project.html
+!/readme.md

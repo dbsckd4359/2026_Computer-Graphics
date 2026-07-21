@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>childhood recollection</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .canvas-box {
+            position: relative;
+            width: 100vw;
+        }
+
+        .panel {
+            position: absolute;
+            width: 50vw;
+            height: 8vh;
+            border: thick rgba(63, 63, 70, 0.6) solid;
+            background-color: rgba(24, 24, 27, 0.85);
+            left: 50%;
+            margin-left: -25vw;
+            border-radius: 20px;
+            color: white;
+            font-size: 25px;
+            display: flex;
+
+            &>.start-button {
+                visibility: hidden;
+                width: 10vw;
+
+                border: thick rgba(63, 63, 70, 0.6) solid;
+                background-color: rgba(24, 24, 27, 0.85);
+                border-radius: 20px;
+                color: orange;
+                font-size: 30px;
+
+            }
+        }
+
+        .text-space {
+            text-align: center;
+            line-height: 3;
+            width: 70%;
+        }
+
+        .timer-space {
+            text-align: center;
+            line-height: 3;
+            width: 30%;
+        }
+
+        .canvas-ui {
+            position: absolute;
+            right: 0;
+            width: 15vw;
+            height: 32vh;
+            border: thick rgba(63, 63, 70, 0.6) solid;
+            background-color: rgba(24, 24, 27, 0.85);
+            border-radius: 20px;
+        }
+
+        .head {
+
+            color: white;
+            font-size: 20px;
+
+        }
+
+        .menu {
+            padding: 10px;
+            color: green;
+            border: thick rgba(63, 63, 70, 0.6) solid;
+            background-color: rgba(24, 24, 27, 0.85);
+            font-weight: bold;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="canvas-box">
+        <div class="panel">
+            <div class="text-space">
+                앞으로 이동하세요.
+            </div>
+            <div class="timer-space">
+                타이머영역
+            </div>
+            <button class="start-button">
+                Start
+            </button>
+        </div>
+
+        <div class="canvas-ui">
+            <div class="head">
+                <div class="page1">
+                    이동
+                    <br>case 1: W, S, A, D
+                    <br>case 2: Alt + mousewheel
+                </div>
+                <div class="page2">
+                    시선
+                    <br>Alt + mousemove
+                </div>
+                <div class="page3">
+                    테마
+                    <br>
+                    Sunset: <button class="menu Sunset">click</button>
+                    <br>
+                    Night: <button class="menu Night">click</button>
+                    <br>
+                    Reset: <button class="menu Morning">click</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <canvas id="glCanvas"></canvas>
+    <script type="text/javascript" src="./scripts/initShaders2.js"></script>
+    <script type="text/javascript" src="./scripts/MV.js"></script>
+
+    <script type="module">
+        var gl;
+        let vertices = [];
+        var GroundVertexCount = 0, objVertexCount = 0, SwingVertexCount = 0,
+
+            SeeSawVertexCount = 0, SliderVertexCount = 0, TeeterVertexCount = 0,
+            BarrierVertexCount = 0, BenchVertexCount = 0,
+
+            MerryVertexCount = 0, CrossBarVertexCount = 0, LampVertexCount = 0, 
+
+
+            theta = 45, SliderTheta = 135, SeeSawTheta = 90, MerryTheta = -90, BarrierAngle = -90, BenchAngle = -90;
+
+        var program1, program2, program3;
+
+        var eye = vec3(1, 4, 28), at = vec3(0, 0, 0), cameraVec = vec3(0, -0.4472, -0.8944); // 0.4472 == 1.0/Math.sqrt(5)
+        var worldMatrix, viewMatrix, projectMatrix;
+        var worldMatLoc1, viewMatLoc1, projMatLoc1, texImageLoc1, NormalMapLoc, texImageLoc3;
+
+
+        var eyePosLoc1, matShLoc1, lightDirLoc1, matSpecLoc1, matAmbiLoc1, matEmitLoc1;
+        var worldMatLoc2, viewMatLoc2, projMatLoc2, uColorLoc2;
+        var worldMatLoc3, viewMatLoc3, projMatLoc3;
+
+
+        var selectedObjectId = 0;
+
+        var isDragging = false;
+        var lastPosX = 0;
+
+
+        var shininess = 100;
+        var lightDir = vec3(15, 15, 13);
+
+
+        generateModel();
+        await loadOBJModel("models/Slider.obj");
+        await loadOBJModel("models/Swing.obj");
+        await loadOBJModel("models/Barrier.obj");
+        await loadOBJModel("models/street_bench.obj");
+        await loadOBJModel("models/SeeSaw02.obj");//SeeSaw
+        await loadOBJModel("models/Teeter02.obj"); //Merry
+        await loadOBJModel("models/CrossBar.obj");
+        await loadOBJModel("models/Lamp.obj");
+       await loadOBJModel("models/test_ Swing.obj");
+        
+        const bgm = new Audio(`Audio/background_music.mp3`);
+        bgm.loop = true;
+        bgm.volume = 0.5;
+
+        init();
+        render();
+
+
+
+        function init() {
+            var canvas = document.getElementById('glCanvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            gl = canvas.getContext('webgl2', { antialias: false });
+            if (!gl) {
+                alert("WebGL 2 is not available!");
+                return;
+            }
+
+            // Configure WebGL
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            gl.clearColor(0, 0, 0, 1.0);
+
+            gl.enable(gl.DEPTH_TEST);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+            // Enable hidden surface removal
+            gl.enable(gl.DEPTH_TEST);
+
+            // Load shaders and initialize attribute buffers
+            program1 = initShaders(gl, "./shaders/fog_light_tex_vert.glsl", "./shaders/fog_light_tex_frag.glsl");
+            gl.useProgram(program1);
+
+            // Load the data into the GPU
+            var vbufferId = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vbufferId);
+            gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+
+            gl.enableVertexAttribArray(0);
+            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 32, 0);
+
+            gl.enableVertexAttribArray(1);
+            gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 32, 12);
+
+            gl.enableVertexAttribArray(2);
+            gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 32, 24);
+
+            worldMatrix = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+            worldMatLoc1 = gl.getUniformLocation(program1, "worldMat");
+            gl.uniformMatrix4fv(worldMatLoc1, false, worldMatrix);
+
+            viewMatrix = lookAt(eye, at, vec3(0, 1, 0));
+            viewMatLoc1 = gl.getUniformLocation(program1, "viewMat");
+            gl.uniformMatrix4fv(viewMatLoc1, false, flatten(viewMatrix));
+
+            // 3D perspective viewing
+            var aspectRatio = canvas.width / canvas.height;
+            projectMatrix = perspective(90, aspectRatio, 0.001, 1000);
+            projMatLoc1 = gl.getUniformLocation(program1, "projMat");
+            gl.uniformMatrix4fv(projMatLoc1, false, flatten(projectMatrix));
+
+
+            texImageLoc1 = gl.getUniformLocation(program1, "texImage");
+            loadTextureFbx("./Images/T_Generic_colors.bmp", gl.TEXTURE0);
+
+
+            texImageLoc1 = gl.getUniformLocation(program1, "texImage");
+            loadTextureFbx("./Images/Playground.png", gl.TEXTURE1);
+
+            texImageLoc1 = gl.getUniformLocation(program1, "texImage");
+            loadTexture("./Images/swing_basecolor.png", gl.TEXTURE2);
+
+            texImageLoc1 = gl.getUniformLocation(program1, "texImage");
+            loadTexture("./Images/DefaultMaterial_BaseColor.png", gl.TEXTURE3);
+
+            texImageLoc1 = gl.getUniformLocation(program1, "texImage");
+            loadTexture("./Images/sand_03_diff_4k.jpg", gl.TEXTURE5)
+
+
+
+            function loadTexture(src, textureUnit) {
+                var imageTex = new Image();
+                imageTex.src = src;
+                imageTex.onload = function () {
+                    var textureID = gl.createTexture();
+                    gl.activeTexture(textureUnit);
+                    gl.bindTexture(gl.TEXTURE_2D, textureID);
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, imageTex);
+                    gl.generateMipmap(gl.TEXTURE_2D);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                }
+            }
+
+            function loadTextureFbx(src, textureUnit) {
+                var imageTex = new Image();
+                imageTex.src = src;
+
+                imageTex.onload = function () {
+                    var textureID = gl.createTexture();
+                    gl.activeTexture(textureUnit);
+                    gl.bindTexture(gl.TEXTURE_2D, textureID);
+                   
+                    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); //Ai-question
+                  
+                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, imageTex);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                };
+            }
+
+            eyePosLoc1 = gl.getUniformLocation(program1, "eyePos");
+            gl.uniform3fv(eyePosLoc1, flatten(eye), 0);
+
+            matShLoc1 = gl.getUniformLocation(program1, "matSh");
+
+            lightDir = gl.getUniformLocation(program1, "lightDir");
+            gl.uniform3fv(lightDirLoc1, flatten(lightDir), 0);
+
+            matSpecLoc1 = gl.getUniformLocation(program1, "matSpec");
+            matAmbiLoc1 = gl.getUniformLocation(program1, "matAmbi");
+            matEmitLoc1 = gl.getUniformLocation(program1, "matEmit");
+
+            gl.uniform3f(gl.getUniformLocation(program1, "srcDiff"), 1, 1, 1);
+            gl.uniform3f(gl.getUniformLocation(program1, "srcSpec"), 1, 1, 1);
+            gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), 1, 1, 1);
+            gl.uniform3f(gl.getUniformLocation(program1, "lightDir"), 1, 1, 1);
+
+            gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 2);
+            gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 10);
+            gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0);
+
+            var alphaLoc = gl.getUniformLocation(program1, "uAlpha");
+            gl.uniform1f(alphaLoc, 1.0);
+
+
+
+            let Infinity = 99999;
+            const $BtnMorning = document.querySelector(`.Morning`);
+
+            $BtnMorning.addEventListener(`click`, () => {
+
+                gl.clearColor(0.65, 0.85, 1.0, 1.0);
+                gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), Infinity);
+                gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), Infinity);
+                gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0.65, 0.85, 1.0);
+                gl.uniform3f(gl.getUniformLocation(program1, "srcDiff"), 1.0, 1.0, 0.95);
+                gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), 0.2, 0.25, 0.3);
+            });
+
+            const $BtnSunset = document.querySelector(`.Sunset`);
+
+            $BtnSunset.addEventListener(`click`, () => {
+                gl.clearColor(0.62, 0.48, 0.32, 1.0);
+                gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), Infinity);
+                gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), Infinity);
+                gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0.62, 0.48, 0.32);
+                gl.uniform3f(gl.getUniformLocation(program1, "srcDiff"), 0.65, 0.35, 0.15);
+                gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), 0.3, 0.15, 0.2);
+            });
+
+            const $BtnNight = document.querySelector(`.Night`);
+
+            $BtnNight.addEventListener(`click`, () => {
+                gl.clearColor(0.05, 0.05, 0.12, 1.0);
+                gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), Infinity);
+                gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), Infinity);
+                gl.uniform3f(gl.getUniformLocation(program1, "fogColor"), 0.05, 0.05, 0.12);
+                gl.uniform3f(gl.getUniformLocation(program1, "srcDiff"), 0.1, 0.15, 0.25);
+                gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), 0.02, 0.02, 0.05);
+
+                //Lamp lighting --ing--  
+
+
+
+
+
+            });
+
+
+
+            program2 = initShaders(gl, "./shaders/uniform_color_vert.glsl", "./shaders/uniform_color_frag.glsl");
+            gl.useProgram(program2);
+
+            worldMatLoc2 = gl.getUniformLocation(program2, "worldMat");
+            gl.uniformMatrix4fv(worldMatLoc2, false, worldMatrix);
+
+            viewMatLoc2 = gl.getUniformLocation(program2, "viewMat");
+            gl.uniformMatrix4fv(viewMatLoc2, false, flatten(viewMatrix));
+
+            projMatLoc2 = gl.getUniformLocation(program2, "projMat");
+            gl.uniformMatrix4fv(projMatLoc2, false, flatten(projectMatrix));
+
+            uColorLoc2 = gl.getUniformLocation(program2, "uColor");
+
+
+            function PickingObject(event) {
+                gl.useProgram(program2);
+
+                // gl.clearColor(0, 0, 0, 1);
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+                gl.uniformMatrix4fv(viewMatLoc2, false, flatten(viewMatrix));
+                gl.uniformMatrix4fv(projMatLoc2, false, flatten(projectMatrix));
+
+
+                //Slider 
+                gl.uniform4f(uColorLoc2, (1.0 / 255.0), 0, 1, 1);
+                worldMatrix = scalem(13, 13, 13);
+                worldMatrix = mult(worldMatrix, rotateY(SliderTheta));
+                worldMatrix = mult(translate(10, 3, -10), worldMatrix);
+                gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount, SliderVertexCount);
+
+
+                // Swing 
+                gl.uniform4f(uColorLoc2, (2.0 / 255.0), 0, 1, 1);
+                worldMatrix = mult(mat4(), translate(vec3(-5, 2, -14)));
+                worldMatrix = mult(worldMatrix, scalem(8, 8, 8));
+                gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount, SwingVertexCount);
+
+
+                //SeeSaw
+                gl.uniform4f(uColorLoc2, (3.0 / 255.0), 0, 1, 1);
+                worldMatrix = scalem(8, 8, 8);
+                worldMatrix = mult(worldMatrix, rotateY(-SeeSawTheta))
+                worldMatrix = mult(translate(-12, 1, 8), worldMatrix)
+                gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount + BarrierVertexCount +
+                    BenchVertexCount, SeeSawVertexCount);
+
+                gl.uniform4f(uColorLoc2, (3.0 / 255.0), 0, 1, 1);
+                worldMatrix = scalem(8, 8, 8);
+                worldMatrix = mult(worldMatrix, rotateY(-SeeSawTheta))
+                worldMatrix = mult(translate(-12, 1, 5), worldMatrix)
+                gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount + BarrierVertexCount +
+                    BenchVertexCount, SeeSawVertexCount);
+
+
+
+                //Merry
+                gl.uniform4f(uColorLoc2, (4.0 / 255.0), 0, 1, 1);
+                worldMatrix = scalem(8, 8, 8);
+                worldMatrix = mult(worldMatrix, rotateY(MerryTheta))
+                worldMatrix = mult(translate(10, 1, 5), worldMatrix);
+                gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount + BarrierVertexCount +
+                    BenchVertexCount + SeeSawVertexCount, MerryVertexCount);
+
+
+
+                //CrossBar
+                gl.uniform4f(uColorLoc2, (5.0 / 255.0), 0, 1, 1);
+                worldMatrix = scalem(8, 8, 8);
+                worldMatrix = mult(translate(1, 2, 1), worldMatrix)
+                worldMatrix = mult(translate(-15, 1, -6), worldMatrix);
+                gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount + BarrierVertexCount +
+                    BenchVertexCount + SeeSawVertexCount + MerryVertexCount, CrossBarVertexCount);
+
+
+                //===================================================================================================
+
+
+
+                //mouse position
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = event.clientX - rect.left;
+                const mouseY = rect.bottom - event.clientY;
+
+                //read Pixel
+                const pixels = new Uint8Array(4);
+                gl.readPixels(mouseX, mouseY, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+                selectedObjectId = pixels[0];
+                console.log("Picked ID: ", selectedObjectId);
+
+
+                gl.useProgram(program1);
+            }
+
+
+
+            canvas.addEventListener("mousedown", function (event) {
+                if (event.altKey) {
+                    isDragging = true;
+                    lastPosX = event.clientX;
+                    canvas.style.cursor = "grab";
+                } else {
+                    PickingObject(event);
+                }
+            });
+
+            canvas.addEventListener("mouseleave", function (event) {
+                isDragging = false;
+                canvas.style.cursor = "default";
+            });
+
+
+            canvas.addEventListener("mousemove", function (event) {
+                if (!isDragging || !(event.altKey)) return;
+
+                var deltaX = event.clientX - lastPosX;
+                lastPosX = event.clientX;
+
+
+                if (Math.abs(deltaX) > 0.1) {
+                    const angle = -deltaX * 0.11 * Math.PI / 180.0;
+                    const sinAngle = Math.sin(angle);
+                    const cosAngle = Math.cos(angle);
+                    var newVecX = cosAngle * cameraVec[0] + sinAngle * cameraVec[2];
+                    var newVecZ = -sinAngle * cameraVec[0] + cosAngle * cameraVec[2];
+
+                    cameraVec[0] = newVecX;
+                    cameraVec[2] = newVecZ; //update
+
+                }
+            });
+
+
+
+            canvas.addEventListener("wheel", function (event) {
+                event.preventDefault();
+
+                var delta = 0;
+                if (event.deltaY > 0)
+                    delta = 1.0;
+                else {
+                    delta = -1.0;
+                }
+
+                var newPosX = eye[0] + delta * cameraVec[0];
+                var newPosZ = eye[2] + delta * cameraVec[2];
+                if (newPosX > -30 && newPosX < 30 && newPosZ > -30 && newPosZ < 30) {
+
+                    eye[0] = newPosX;
+                    console.log(newPosZ.toFixed(2));
+                    eye[2] = newPosZ;
+                } else {
+                    alert("경계에 닿았습니다!");
+
+                    //  alert("원점으로 돌아갑니다.");
+                    //  eye[0] =0;
+                    // eye[2] = 0;
+                }
+            }, { passive: false });
+
+
+            let StartPlug = false;
+
+
+            var sinTheta = Math.sin(0.1);
+            var cosTheta = Math.cos(0.1);
+            window.onkeydown = function (event) {
+                var key = String.fromCharCode(event.keyCode);
+                switch (key) {
+                    case 'A':
+                    case 'a':
+                        var newVecX = cosTheta * cameraVec[0] + sinTheta * cameraVec[2];
+                        var newVecZ = -sinTheta * cameraVec[0] + cosTheta * cameraVec[2];
+                        cameraVec[0] = newVecX;
+                        cameraVec[2] = newVecZ;
+                        break;
+                    case 'D':
+                    case 'd':
+                        var newVecX = cosTheta * cameraVec[0] - sinTheta * cameraVec[2];
+                        var newVecZ = sinTheta * cameraVec[0] + cosTheta * cameraVec[2];
+                        cameraVec[0] = newVecX;
+                        cameraVec[2] = newVecZ;
+                        break;
+                    case 'W':
+                    case 'w':
+                        var newPosX = eye[0] + 2.0 * cameraVec[0];
+                        var newPosZ = eye[2] + 2.0 * cameraVec[2];
+
+                        if (newPosZ <= 16 && !StartPlug) {
+                            StartPlug = true;
+                            const $text = document.querySelector(`.text-space`);
+                            const $timer = document.querySelector(`.timer-space`);
+                            const $startBtn = document.querySelector(".start-button");
+                            const $morningBtn = document.querySelector(`.Morning`);
+                            $startBtn.style.visibility = `visible`;
+                            $text.textContent = `Start 클릭 시 입장`;
+
+                            $startBtn.addEventListener(`click`, (e) => {
+                                e.target.style.visibility = `hidden`;
+                                $timer.style.color = `white`;
+                                $morningBtn.click();
+                                bgm.play();
+
+                                $text.textContent = `추억을 회상 해보세요!`;
+
+                                let totalTime = 300;
+                                let alpha = 1.0;
+                                const Timer = setInterval(() => {
+                                    if (totalTime <= 0) {
+                                        clearInterval(Timer);
+                                        $text.textContent = `타이머영역`;
+                                        bgm.pause();
+                                        bgm.currentTime = 0;
+                                        init();
+                                        return;
+                                    }
+
+                                    totalTime--;
+                                    const minute = Math.floor(totalTime / 60);
+                                    const second = totalTime % 60;
+                                    const m = String(minute).padStart(2, '0');
+                                    const s = String(second).padStart(2, '0');
+                                    if (totalTime <= 4) {
+                                        $text.textContent = `돌아 갈 시간입니다`;
+                                        $timer.style.color = `red`;
+                                        alpha -= 0.2;
+                                        gl.uniform1f(alphaLoc, alpha);
+                                    }
+
+                                    $timer.textContent = (`${m}:${s}`);
+
+                                }, 1000);
+
+                            });
+
+
+                        }
+                        if (newPosX > -30 && newPosX < 30 && newPosZ > -30 && newPosZ < 30) {
+                            eye[0] = newPosX;
+                            eye[2] = newPosZ;
+                            console.log(newPosZ)
+                        } else {
+                            alert("경계에 닿았습니다!!!");
+                        }
+                        break;
+                    case 'S':
+                    case 's':
+                        var newPosX = eye[0] - 2.0 * cameraVec[0];
+                        var newPosZ = eye[2] - 2.0 * cameraVec[2];
+                        if (newPosX > -30 && newPosX < 30 && newPosZ > -30 && newPosZ < 30) {
+                            eye[0] = newPosX;
+
+                            eye[2] = newPosZ;
+                        } else {
+                            alert("경계에 닿았습니다!!!");
+                        }
+                        break;
+                }
+            };
+
+            window.onresize = function () {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                gl.viewport(0, 0, canvas.width, canvas.height);
+
+                // 3D perspective viewing
+                var aspectRatio = canvas.width / canvas.height;
+                projectMatrix = perspective(90, aspectRatio, 0.001, 1000);
+                gl.uniformMatrix4fv(projMatLoc1, false, flatten(projectMatrix));
+            };
+        }
+
+
+
+
+        function render() {
+            gl.useProgram(program1);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            at[0] = eye[0] + cameraVec[0];
+            at[1] = eye[1] + cameraVec[1];
+            at[2] = eye[2] + cameraVec[2];
+            viewMatrix = lookAt(eye, at, vec3(0, 1, 0));
+            gl.uniform3fv(eyePosLoc1, flatten(eye), 0);
+            gl.uniformMatrix4fv(viewMatLoc1, false, flatten(viewMatrix));
+
+
+            // Ground
+            worldMatrix = mat4();
+            gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+            gl.uniform1i(texImageLoc1, 5);
+            gl.uniform1f(matShLoc1, 1);
+            gl.uniform3f(matSpecLoc1, 0, 0, 0);
+            gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+            gl.uniform3f(matEmitLoc1, 0, 0, 0);
+            gl.drawArrays(gl.TRIANGLES, 0, GroundVertexCount);
+
+
+            //Slider
+            worldMatrix = scalem(13, 13, 13);
+            worldMatrix = mult(worldMatrix, rotateY(SliderTheta));
+            worldMatrix = mult(translate(10, 3, -10), worldMatrix);
+            gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));//
+            gl.uniform1i(texImageLoc1, 1);
+            gl.uniform1f(matShLoc1, 1);
+            gl.uniform3f(matSpecLoc1, 0, 0, 0);
+            gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+            if (selectedObjectId == 1) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+            else gl.uniform3f(matEmitLoc1, 0, 0, 0);
+            gl.drawArrays(gl.TRIANGLES, GroundVertexCount, SliderVertexCount);
+
+
+            //Swing 
+            worldMatrix = mult(mat4(), translate(vec3(-5, 2, -14)));
+            worldMatrix = mult(worldMatrix, scalem(8, 8, 8));
+            gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+            gl.uniform1i(texImageLoc1, 2);
+            gl.uniform1f(matShLoc1, 1);
+            gl.uniform3f(matSpecLoc1, 0, 0, 0);
+            gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+            if (selectedObjectId == 2) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+            else gl.uniform3f(matEmitLoc1, 0, 0, 0);
+            gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount, SwingVertexCount);
+
+
+
+            //Barrier-Lines top,down
+            for (let x = -14; x <= 14; x += 7) {
+                if (x === 0) continue;
+
+                worldMatrix = mult(mat4(), translate(vec3(x, 1, 12)));
+                worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
+                gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+                gl.uniform1i(texImageLoc1, 1);
+                gl.uniform1f(matShLoc1, 1);
+                gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+                gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount,
+                    BarrierVertexCount);
+
+
+
+                worldMatrix = mult(mat4(), translate(vec3(x, 1, -18)));
+                worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
+                gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+                gl.uniform1i(texImageLoc1, 1);
+                gl.uniform1f(matShLoc1, 1);
+                gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+                gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount,
+                    BarrierVertexCount);
+            }
+
+
+            //Barrier-Lines left,right
+            for (let z = -15; z <= 9; z += 8.0) {
+
+                worldMatrix = scalem(5, 5, 5);
+                worldMatrix = mult(worldMatrix, rotateY(BarrierAngle));
+                worldMatrix = mult(translate(vec3(-18, 1, z)), worldMatrix);
+                gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+                gl.uniform1i(texImageLoc1, 1);
+                gl.uniform1f(matShLoc1, 1);
+                gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+
+                gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount,
+                    BarrierVertexCount);
+
+
+                worldMatrix = scalem(5, 5, 5);
+                worldMatrix = mult(worldMatrix, rotateY(BarrierAngle));
+                worldMatrix = mult(translate(vec3(18, 1, z)), worldMatrix);
+                gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+                gl.uniform1i(texImageLoc1, 1);
+                gl.uniform1f(matShLoc1, 1);
+                gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+
+                gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount,
+                    BarrierVertexCount);
+            }
+            //===============================================================================================================
+            //Street-Bench left->right auto top,bottom
+            for (let x = -28; x <= 28; x += 56) {
+
+                let curr = (x === 28) ? 90 : -90;
+
+                worldMatrix = scalem(6, 6, 6)
+                worldMatrix = mult(worldMatrix, rotateY(curr));
+                worldMatrix = mult(translate(vec3(x, 0, -10)), worldMatrix);
+                gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+                gl.uniform1i(texImageLoc1, 3);
+                gl.uniform1f(matShLoc1, 1);
+                gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+
+                gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                    BarrierVertexCount, BenchVertexCount);
+
+
+                worldMatrix = scalem(6, 6, 6)
+                worldMatrix = mult(worldMatrix, rotateY(curr));
+                worldMatrix = mult(translate(vec3(x, 0, 4)), worldMatrix);
+                gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+                gl.uniform1i(texImageLoc1, 3);
+                gl.uniform1f(matShLoc1, 1);
+                gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+
+                gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                    BarrierVertexCount, BenchVertexCount);
+
+            }
+
+            //SeeSaw
+            worldMatrix = scalem(8, 8, 8);
+            worldMatrix = mult(worldMatrix, rotateY(-SeeSawTheta))
+            worldMatrix = mult(translate(-12, 1, 8), worldMatrix)
+            gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+            gl.uniform1i(texImageLoc1, 0);
+            gl.uniform1f(matShLoc1, 1);
+            gl.uniform3f(matSpecLoc1, 0, 0, 0);
+            gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+            if (selectedObjectId == 3) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+            else gl.uniform3f(matEmitLoc1, 0, 0, 0);
+            gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                BarrierVertexCount + BenchVertexCount, SeeSawVertexCount);
+
+            worldMatrix = scalem(8, 8, 8);
+            worldMatrix = mult(worldMatrix, rotateY(-SeeSawTheta))
+            worldMatrix = mult(translate(-12, 1, 5), worldMatrix)
+            gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+            gl.uniform1i(texImageLoc1, 0);
+            gl.uniform1f(matShLoc1, 1);
+            gl.uniform3f(matSpecLoc1, 0, 0, 0);
+            gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+            if (selectedObjectId == 3) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+            else gl.uniform3f(matEmitLoc1, 0, 0, 0);
+            gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                BarrierVertexCount + BenchVertexCount, SeeSawVertexCount);
+
+
+            //Merry
+            worldMatrix = scalem(8, 8, 8);
+            MerryTheta--;
+            worldMatrix = mult(worldMatrix, rotateY(MerryTheta))
+            worldMatrix = mult(translate(10, 1, 5), worldMatrix);
+            gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+            gl.uniform1i(texImageLoc1, 0);
+            gl.uniform1f(matShLoc1, 1);
+            gl.uniform3f(matSpecLoc1, 0, 0, 0);
+            gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+            if (selectedObjectId == 4) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+            else gl.uniform3f(matEmitLoc1, 0, 0, 0);
+            gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                BarrierVertexCount + BenchVertexCount + SeeSawVertexCount, MerryVertexCount);
+
+
+
+            //CrossBar 
+            worldMatrix = scalem(8, 8, 8);
+            worldMatrix = mult(translate(1, 2, 1), worldMatrix)
+            worldMatrix = mult(translate(-15, 1, -6), worldMatrix);
+            gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+            gl.uniform1i(texImageLoc1, 0);
+            gl.uniform1f(matShLoc1, 1);
+            gl.uniform3f(matSpecLoc1, 0, 0, 0);
+            gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+            if (selectedObjectId == 5) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+            else gl.uniform3f(matEmitLoc1, 0, 0, 0);
+            gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount, CrossBarVertexCount);
+
+
+
+
+            //Lamp
+            for (let x = -18; x <= 18; x += 36) {
+                worldMatrix = scalem(10, 10, 10);
+                worldMatrix = mult(translate(x, 4, 13), worldMatrix)
+                gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+                gl.uniform1i(texImageLoc1, 0);
+                gl.uniform1f(matShLoc1, 1);
+                gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+                gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                    BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount, LampVertexCount);
+
+
+
+                worldMatrix = scalem(10, 10, 10);
+                worldMatrix = mult(translate(x, 4, -19), worldMatrix)
+                gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+                gl.uniform1i(texImageLoc1, 0);
+                gl.uniform1f(matShLoc1, 1);
+                gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+                gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                    BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount, LampVertexCount);
+            
+            
+        
+                }
+/*
+            worldMatrix = scalem(8, 8, 8);
+            worldMatrix = mult(worldMatrix, rotateY(-SeeSawTheta))
+            worldMatrix = mult(translate(0, 1, 0), worldMatrix)
+            gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+            gl.uniform1i(texImageLoc1, 0);
+            gl.uniform1f(matShLoc1, 1);
+            gl.uniform3f(matSpecLoc1, 0, 0, 0);
+            gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+            if (selectedObjectId == 3) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+            else gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                BarrierVertexCount + BenchVertexCount, SeeSawVertexCount);
+  */
+                window.requestAnimationFrame(render);
+        }
+
+
+        function generateModel() {
+            // Ground
+            vertices.push(vec3(-30, -1, 30), vec3(0, 1, 0), vec2(0, 0),
+                vec3(30, -1, 30), vec3(0, 1, 0), vec2(10, 0),
+                vec3(30, -1, -30), vec3(0, 1, 0), vec2(10, 10),
+                vec3(-30, -1, 30), vec3(0, 1, 0), vec2(0, 0),
+                vec3(30, -1, -30), vec3(0, 1, 0), vec2(10, 10),
+                vec3(-30, -1, -30), vec3(0, 1, 0), vec2(0, 10));
+            GroundVertexCount = 6;
+
+        }
+        async function loadOBJModel(objPath) {
+            try {
+                const response = await fetch(objPath);
+                if (!response.ok) {
+                    throw new Error(`${objPath} load failed: ${response.status}`);
+                }
+                const objText = await response.text();
+                //console.log(objPath);
+
+                const lines = objText.split("\n");
+
+
+                // Parsing
+                var positions = [], normals = [], texCoords = [];
+                var posIndex = [], norIndex = [], texIndex = [];
+                var currGroup = "";
+                for (var i = 0; i < lines.length; i++) {
+                    const parts = lines[i].trim().split(/\s+/);
+                    const keyword = parts[0];
+
+
+                    if (keyword === "v") {
+                        positions.push(vec3(parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])));
+                    }
+                    else if (keyword === "vn") {
+                        normals.push(vec3(parseFloat(parts[1]), parseFloat(parts[2]), parseFloat(parts[3])));
+                    }
+                    else if (keyword === "vt") {
+                        texCoords.push(vec2(parseFloat(parts[1]), parseFloat(parts[2])));
+                    }
+
+                    else if (keyword === "f") {
+
+
+                        var pIndices = [], nIndices = [], tIndices = [];
+                        for (var j = 1; j < parts.length; j++) {
+                            var indices = parts[j].split('/');
+                            pIndices.push(parseInt(indices[0]) - 1);    // Because OBJ index starts from 1.
+                            tIndices.push(indices[1] ? parseInt(indices[1]) - 1 : -1);
+                            nIndices.push(indices[2] ? parseInt(indices[2]) - 1 : -1);
+                        }
+                        // Triangulation of polygons
+                        for (var j = 1; j < pIndices.length - 1; j++) {
+                            posIndex.push(pIndices[0], pIndices[j], pIndices[j + 1]);
+                            norIndex.push(nIndices[0], nIndices[j], nIndices[j + 1]);
+                            texIndex.push(tIndices[0], tIndices[j], tIndices[j + 1]);
+                        }
+                    }
+                }
+
+                // Center alignment and size adjustment
+                var min = [Infinity, Infinity, Infinity];
+                var max = [-Infinity, -Infinity, -Infinity];
+                for (var i = 0; i < positions.length; i++) {
+                    for (var j = 0; j < 3; j++) {
+                        if (positions[i][j] < min[j]) min[j] = positions[i][j];
+                        if (positions[i][j] > max[j]) max[j] = positions[i][j];
+                    }
+                }
+                var center = [(max[0] + min[0]) / 2, (max[1] + min[1]) / 2, (max[2] + min[2]) / 2];
+                var maxExtent = Math.max(max[0] - min[0], max[1] - min[1], max[2] - min[2]);
+                var scale = 1.0 / maxExtent;
+                for (var i = 0; i < positions.length; i++) {
+                    positions[i][0] = (positions[i][0] - center[0]) * scale;
+                    positions[i][1] = (positions[i][1] - center[1]) * scale;
+                    positions[i][2] = (positions[i][2] - center[2]) * scale;
+                }
+
+                // Updating vertex array
+                for (var i = 0; i < posIndex.length; i++) {
+                    vertices.push(positions[posIndex[i]]);
+                    vertices.push((norIndex[i] == -1) ? vec3(0, 0, 0) : normals[norIndex[i]]);
+                    vertices.push((texIndex[i] == -1) ? vec2(0, 0) : texCoords[texIndex[i]]);
+
+
+                    if (objPath === "models/Slider.obj") {
+                        SliderVertexCount++;
+
+                    } else if (objPath === "models/Swing.obj") {
+                        SwingVertexCount++;
+
+                    } else if (objPath === "models/Barrier.obj") {
+                        BarrierVertexCount++;
+                    } else if (objPath === "models/street_bench.obj") {
+                        BenchVertexCount++;
+                    } else if (objPath === "models/SeeSaw02.obj") {
+                        SeeSawVertexCount++;
+                    } else if (objPath === "models/Teeter02.obj") {
+                        MerryVertexCount++;
+                    } else if (objPath === "models/CrossBar.obj") {
+                        CrossBarVertexCount++;
+                    } else if (objPath === "models/Lamp.obj") {
+                        LampVertexCount++;
+
+                    } else {
+                        objVertexCount++; //check Object
+                        console.log(objVertexCount);
+                    }
+                }
+                console.log(`OBJ loaded: ${objPath}, # of vertices: ${objVertexCount}`);
+
+            } catch (error) {
+                console.error(`${objPath} load failed: ${error}`);
+            }
+        }
+    </script>
+    </div>
+</body>
+
+</html>
