@@ -58,7 +58,7 @@
             position: absolute;
             right: 0;
             width: 15vw;
-            height: 32vh;
+            height: 35vh;
             border: thick rgba(63, 63, 70, 0.6) solid;
             background-color: rgba(24, 24, 27, 0.85);
             border-radius: 20px;
@@ -133,18 +133,18 @@
             SeeSawVertexCount = 0, SliderVertexCount = 0, TeeterVertexCount = 0,
             BarrierVertexCount = 0, BenchVertexCount = 0,
 
-            MerryVertexCount = 0, CrossBarVertexCount = 0, LampVertexCount = 0, 
+            MerryVertexCount = 0, CrossBarVertexCount = 0, LampVertexCount = 0, Swing_body_VertexCount = 0, swing_left_VertexCount = 0,
+            swing_right_VertexCount = 0;
 
-
-            theta = 45, SliderTheta = 135, SeeSawTheta = 90, MerryTheta = -90, BarrierAngle = -90, BenchAngle = -90;
+        var theta = 45, SliderTheta = 135, SeeSawTheta = 90, MerryTheta = -90, BarrierAngle = -90, BenchAngle = -90, SwingTheta = 0;
 
         var program1, program2, program3;
 
-        var eye = vec3(1, 4, 28), at = vec3(0, 0, 0), cameraVec = vec3(0, -0.4472, -0.8944); // 0.4472 == 1.0/Math.sqrt(5)
+        let eye = vec3(1, 4, 28), at = vec3(0, 0, 0), cameraVec = vec3(0, -0.4472, -0.8944); // 0.4472 == 1.0/Math.sqrt(5)
         var worldMatrix, viewMatrix, projectMatrix;
         var worldMatLoc1, viewMatLoc1, projMatLoc1, texImageLoc1, NormalMapLoc, texImageLoc3;
 
-
+        //vec3(1, 4, 28)
         var eyePosLoc1, matShLoc1, lightDirLoc1, matSpecLoc1, matAmbiLoc1, matEmitLoc1;
         var worldMatLoc2, viewMatLoc2, projMatLoc2, uColorLoc2;
         var worldMatLoc3, viewMatLoc3, projMatLoc3;
@@ -169,11 +169,12 @@
         await loadOBJModel("models/Teeter02.obj"); //Merry
         await loadOBJModel("models/CrossBar.obj");
         await loadOBJModel("models/Lamp.obj");
-       await loadOBJModel("models/test_ Swing.obj");
-        
-        const bgm = new Audio(`Audio/background_music.mp3`);
-        bgm.loop = true;
-        bgm.volume = 0.5;
+        await loadOBJModel("models/swing_body.obj");
+        await loadOBJModel("models/swing_left.obj");
+        await loadOBJModel("models/swing_right.obj");
+        // const bgm = new Audio(`Audio/background_music.mp3`);
+        //  bgm.loop = true;
+        // bgm.volume = 0.5;
 
         init();
         render();
@@ -275,9 +276,9 @@
                     var textureID = gl.createTexture();
                     gl.activeTexture(textureUnit);
                     gl.bindTexture(gl.TEXTURE_2D, textureID);
-                   
+
                     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); //Ai-question
-                  
+
                     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, imageTex);
                     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
                     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -302,8 +303,8 @@
             gl.uniform3f(gl.getUniformLocation(program1, "lightDir"), 1, 1, 1);
 
             gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 2);
-            gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 10);
-            gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0);
+            //  gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 10);
+            //  gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0);
 
             var alphaLoc = gl.getUniformLocation(program1, "uAlpha");
             gl.uniform1f(alphaLoc, 1.0);
@@ -633,6 +634,29 @@
             };
         }
 
+        function SwingRevert(){
+             gl.useProgram(program1);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            at[0] = eye[0] + cameraVec[0];
+            at[1] = eye[1] + cameraVec[1];
+            at[2] = eye[2] + cameraVec[2];
+            viewMatrix = lookAt(eye, at, vec3(0, 1, 0));
+            gl.uniform3fv(eyePosLoc1, flatten(eye), 0);
+            gl.uniformMatrix4fv(viewMatLoc1, false, flatten(viewMatrix));
+
+            const Timer = setInterval(() => {
+            
+            worldMatrix = mult(worldMatrix,translate(0,0,2));
+            worldMatrix = mult(worldMatrix, rotateX(10));
+            worldMatrix = mult( worldMatrix, translate(0, 0, -2));
+            //    worldMatrix = mult( worldMatrix,rotateX(SwingTheta--));    
+       
+        },3000);
+    }
+
+
+
 
 
 
@@ -674,7 +698,7 @@
 
 
             //Swing 
-            worldMatrix = mult(mat4(), translate(vec3(-5, 2, -14)));
+            worldMatrix = mult(mat4(), translate(vec3(20, 2, -14)));
             worldMatrix = mult(worldMatrix, scalem(8, 8, 8));
             gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
             gl.uniform1i(texImageLoc1, 2);
@@ -869,25 +893,84 @@
                 gl.uniform3f(matEmitLoc1, 0, 0, 0);
                 gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                     BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount, LampVertexCount);
+
+
+
+            }
+            //------------------------------------------------------------------------------)
+            /*
+            - blender를 통한 오브젝트 분리✓
+            - 운동을 위한 피벗 재설정✓
+            - 지지대와 최상단 결합? 애니메이션 구현
+              
             
-            
-        
-                }
-/*
-            worldMatrix = scalem(8, 8, 8);
-            worldMatrix = mult(worldMatrix, rotateY(-SeeSawTheta))
-            worldMatrix = mult(translate(0, 1, 0), worldMatrix)
+             */
+
+            //2026.07.22 swing개선
+            //swing body
+            worldMatrix = scalem(9, 15, 8);
+            worldMatrix = mult(translate(-5, 1, -14), worldMatrix)
             gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
-            gl.uniform1i(texImageLoc1, 0);
-            gl.uniform1f(matShLoc1, 1);
-            gl.uniform3f(matSpecLoc1, 0, 0, 0);
-            gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-            if (selectedObjectId == 3) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
-            else gl.uniform3f(matEmitLoc1, 0, 0, 0);
-                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
-                BarrierVertexCount + BenchVertexCount, SeeSawVertexCount);
-  */
-                window.requestAnimationFrame(render);
+            gl.uniform1i(texImageLoc1, 2);
+            gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount, Swing_body_VertexCount);
+
+
+
+            //swing left
+            worldMatrix = scalem(5, 5, 5);
+            worldMatrix = mult(translate(-7, 3.2, -14), worldMatrix)
+            worldMatrix = mult(inverse(translate(0, 0, 5)), worldMatrix);
+            worldMatrix = mult(worldMatrix, rotateX(SwingTheta));
+            worldMatrix = mult(translate(0, 0, 5), worldMatrix);
+            gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+            gl.uniform1i(texImageLoc1, 2);
+            gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount,
+                swing_left_VertexCount);
+
+            //case 1.
+            //swing right
+            //T(p) dot R(theta) dot - T(-p)
+            let time = performance.now() * 0.001;
+            let SwingAngle = 45;
+            let speed = 2.0;
+            let currAngle = SwingAngle * Math.sin(time * speed);
+
+          
+            worldMatrix= translate(-3.0,3.2,-14);
+             worldMatrix = mult( worldMatrix, rotateX(currAngle));
+             worldMatrix = mult( worldMatrix, scalem(5, 5, 5));
+                    gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+             gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
+                swing_left_VertexCount, swing_right_VertexCount);
+
+           
+                    var chainMatrix = worldMatrix;
+            
+            //case 2.
+            // 지지대와 최상단 사슬 분리 해결안 도출 sol)X
+                    /*
+             chainMatrix  = mult(chainMatrix, rotateX(currAngle));
+                   chainMatrix  = mult(chainMatrix, translate(-7.3,3,-14));
+            chainMatrix = mult(chainMatrix, scalem(5, 5, 5));
+  */          
+            gl.uniformMatrix4fv(worldMatLoc1, false, flatten(chainMatrix));
+            gl.uniform1i(texImageLoc1, 2);
+            gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
+                swing_left_VertexCount, swing_right_VertexCount);
+
+    //------------------------------------------------------------------------------)
+
+
+
+
+
+
+
+            window.requestAnimationFrame(render);
         }
 
 
@@ -933,16 +1016,16 @@
                         texCoords.push(vec2(parseFloat(parts[1]), parseFloat(parts[2])));
                     }
 
+
                     else if (keyword === "f") {
-
-
                         var pIndices = [], nIndices = [], tIndices = [];
                         for (var j = 1; j < parts.length; j++) {
                             var indices = parts[j].split('/');
-                            pIndices.push(parseInt(indices[0]) - 1);    // Because OBJ index starts from 1.
+                            pIndices.push(parseInt(indices[0]) - 1);    // Because OBJ index starts from 1. //0-base
                             tIndices.push(indices[1] ? parseInt(indices[1]) - 1 : -1);
                             nIndices.push(indices[2] ? parseInt(indices[2]) - 1 : -1);
                         }
+
                         // Triangulation of polygons
                         for (var j = 1; j < pIndices.length - 1; j++) {
                             posIndex.push(pIndices[0], pIndices[j], pIndices[j + 1]);
@@ -951,6 +1034,7 @@
                         }
                     }
                 }
+
 
                 // Center alignment and size adjustment
                 var min = [Infinity, Infinity, Infinity];
@@ -995,7 +1079,12 @@
                         CrossBarVertexCount++;
                     } else if (objPath === "models/Lamp.obj") {
                         LampVertexCount++;
-
+                    } else if (objPath === "models/swing_body.obj") {
+                        Swing_body_VertexCount++;
+                    } else if (objPath === "models/swing_left.obj") {
+                        swing_left_VertexCount++;
+                    } else if (objPath === "models/swing_right.obj") {
+                        swing_right_VertexCount++;
                     } else {
                         objVertexCount++; //check Object
                         console.log(objVertexCount);
