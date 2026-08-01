@@ -1,4 +1,4 @@
-## 2026 CG poject
+## 2026 CG project
 WebGL과 GLSL을 이용한 웹 애플리케이션 제작하기
 
 
