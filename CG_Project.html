@@ -161,6 +161,16 @@
         let eye02 = vec3(0, 5, 0), at02 = vec3(0, 0, 0), cameraVec02 = vec3(0, -0.4472, -0.8944);
         var eyePosLoc02;
 
+           let time = performance.now() * 0.001;
+           let time02 = performance.now() * 0.001;
+       // let TimeFlug = false;
+
+
+
+        const bgm = new Audio(`Audio/background_music.mp3`);
+        bgm.loop = true;
+        bgm.volume = 0.5;
+
         generateModel();
         await loadOBJModel("models/Slider.obj");
         await loadOBJModel("models/Swing.obj");
@@ -179,9 +189,6 @@
         await loadOBJModel("models/SeeSaw_head.obj");
 
 
-        const bgm = new Audio(`Audio/background_music.mp3`);
-        bgm.loop = true;
-        bgm.volume = 0.5;
 
         init();
         render();
@@ -410,6 +417,8 @@
             uColorLoc2 = gl.getUniformLocation(program2, "uColor");
 
 
+
+
             function PickingObject(event) {
                 gl.useProgram(program2);
 
@@ -429,35 +438,8 @@
                 gl.drawArrays(gl.TRIANGLES, GroundVertexCount, SliderVertexCount);
 
 
-                // Swing 
-                gl.uniform4f(uColorLoc2, (2.0 / 255.0), 0, 1, 1);
-                worldMatrix = mult(mat4(), translate(vec3(-5, 2, -14)));
-                worldMatrix = mult(worldMatrix, scalem(8, 8, 8));
-                gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
-                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount, SwingVertexCount);
-
-
-                //SeeSaw
-                gl.uniform4f(uColorLoc2, (3.0 / 255.0), 0, 1, 1);
-                worldMatrix = scalem(8, 8, 8);
-                worldMatrix = mult(worldMatrix, rotateY(-SeeSawTheta))
-                worldMatrix = mult(translate(-12, 1, 8), worldMatrix)
-                gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
-                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount + BarrierVertexCount +
-                    BenchVertexCount, SeeSawVertexCount);
-
-                gl.uniform4f(uColorLoc2, (3.0 / 255.0), 0, 1, 1);
-                worldMatrix = scalem(8, 8, 8);
-                worldMatrix = mult(worldMatrix, rotateY(-SeeSawTheta))
-                worldMatrix = mult(translate(-12, 1, 5), worldMatrix)
-                gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
-                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount + BarrierVertexCount +
-                    BenchVertexCount, SeeSawVertexCount);
-
-
-
                 //Merry
-                gl.uniform4f(uColorLoc2, (4.0 / 255.0), 0, 1, 1);
+                gl.uniform4f(uColorLoc2, (2.0 / 255.0), 0, 1, 1);
                 worldMatrix = scalem(8, 8, 8);
                 worldMatrix = mult(worldMatrix, rotateY(MerryTheta))
                 worldMatrix = mult(translate(10, 1, 5), worldMatrix);
@@ -468,7 +450,7 @@
 
 
                 //CrossBar
-                gl.uniform4f(uColorLoc2, (5.0 / 255.0), 0, 1, 1);
+                gl.uniform4f(uColorLoc2, (3.0 / 255.0), 0, 1, 1);
                 worldMatrix = scalem(8, 8, 8);
                 worldMatrix = mult(translate(1, 2, 1), worldMatrix)
                 worldMatrix = mult(translate(-15, 1, -6), worldMatrix);
@@ -477,6 +459,69 @@
                     BenchVertexCount + SeeSawVertexCount + MerryVertexCount, CrossBarVertexCount);
 
 
+              
+                        let SwingAngle = 45;
+                        let speed = 2.0;
+                        let currAngle = SwingAngle * Math.sin(time * speed);
+
+                        //swing left            
+                        gl.uniform4f(uColorLoc2, (4.0 / 255.0), 0, 1, 1);
+                        worldMatrix = mat4();
+                        worldMatrix = mult(worldMatrix, translate(0, 2, 0));
+                        worldMatrix = mult(worldMatrix, translate(-7, 3.2, -14));
+                        worldMatrix = mult(worldMatrix, rotateX(currAngle));
+                        worldMatrix = mult(worldMatrix, translate(0, -2, 0));
+                        worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
+
+                        gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                        gl.uniform1i(texImageLoc1, 2);
+                        gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                            BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount,
+                            swing_left_VertexCount);
+
+                        //swing right
+                        gl.uniform4f(uColorLoc2, (5.0 / 255.0), 0, 1, 1);
+                        worldMatrix = mat4();
+                        worldMatrix = mult(worldMatrix, translate(0, 2, 0));
+                        worldMatrix = mult(worldMatrix, translate(-3.0, 3.2, -14));
+                        worldMatrix = mult(worldMatrix, rotateX(-currAngle));
+                        worldMatrix = mult(worldMatrix, translate(0, -2.0, 0));
+                        worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
+
+                        gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                        gl.uniform1i(texImageLoc1, 2);
+                        gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                            BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
+                            swing_left_VertexCount, swing_right_VertexCount);
+
+
+
+
+                        //SeeSaw ani
+                        let SwingAngle02 = 15;
+                        let speed02 = 2.0;
+                        let currAngle02 = SwingAngle02 * Math.sin(time02 * speed02);
+                        //SeeSaw Head
+                        for (let z = 9; z >= 6; z -= 3) {
+                            gl.uniform4f(uColorLoc2, (6.0 / 255.0), 0, 1, 1);
+                            worldMatrix = scalem(8, 8, 8);
+                            worldMatrix = mult(worldMatrix, rotateY(90));
+                            if (z === 6 ? worldMatrix = mult(worldMatrix, rotateX(currAngle02)) :
+                                worldMatrix = mult(worldMatrix, rotateX(-currAngle02)))
+                                worldMatrix = mult(translate(-12, 1.2, z), worldMatrix);
+                            gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                            gl.uniform1i(texImageLoc1, 0);
+                            gl.uniform1f(matShLoc1, 1);
+                            gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                            gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+                            gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                                BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
+                                swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount, SeeSaw_Head_VertexCount);
+
+                        }
+
+     
+             
                 //===================================================================================================
 
 
@@ -495,6 +540,7 @@
 
                 gl.useProgram(program1);
             }
+
 
 
 
@@ -671,11 +717,11 @@
                 projectMatrix = perspective(90, aspectRatio, 0.001, 1000);
                 gl.uniformMatrix4fv(projMatLoc1, false, flatten(projectMatrix));
             };
+
+
+
+
         }
-
-
-
-
 
 
 
@@ -834,7 +880,7 @@
                         gl.uniform1f(matShLoc1, 1);
                         gl.uniform3f(matSpecLoc1, 0, 0, 0);
                         gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-                        if (selectedObjectId == 3) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+                     
                         else gl.uniform3f(matEmitLoc1, 0, 0, 0);
                         gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                             BarrierVertexCount + BenchVertexCount, SeeSawVertexCount);
@@ -847,7 +893,7 @@
                         gl.uniform1f(matShLoc1, 1);
                         gl.uniform3f(matSpecLoc1, 0, 0, 0);
                         gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-                        if (selectedObjectId == 3) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+                     
                         else gl.uniform3f(matEmitLoc1, 0, 0, 0);
                         gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                             BarrierVertexCount + BenchVertexCount, SeeSawVertexCount);
@@ -863,7 +909,7 @@
             gl.uniform1f(matShLoc1, 1);
             gl.uniform3f(matSpecLoc1, 0, 0, 0);
             gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-            if (selectedObjectId == 4) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+            if (selectedObjectId == 2) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
             else gl.uniform3f(matEmitLoc1, 0, 0, 0);
             gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                 BarrierVertexCount + BenchVertexCount + SeeSawVertexCount, MerryVertexCount);
@@ -879,11 +925,10 @@
             gl.uniform1f(matShLoc1, 1);
             gl.uniform3f(matSpecLoc1, 0, 0, 0);
             gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-            if (selectedObjectId == 5) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+            if (selectedObjectId == 3) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
             else gl.uniform3f(matEmitLoc1, 0, 0, 0);
             gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                 BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount, CrossBarVertexCount);
-
 
 
             /*
@@ -919,9 +964,9 @@
               */
             //------------------------------------------------------------------------------)
             /*
-            - blender를 통한 오브젝트 분리✓
+            - blender를 통한 오브젝트 분리✓  
             - 운동을 위한 피벗 재설정✓
-            - 지지대와 최상단 결합? 애니메이션 구현✓
+            - 지지대와 최상단 결합? 애니메이션 구현✓ 2026/08/01
              */
 
             //2026.07.22 swing animation
@@ -936,21 +981,22 @@
 
 
             //swing right
-            let time = performance.now() * 0.001;
+             time = performance.now() * 0.001;
             let SwingAngle = 45;
             let speed = 2.0;
             let currAngle = SwingAngle * Math.sin(time * speed);
 
             //swing left
             worldMatrix = mat4();
-                  worldMatrix = mult(worldMatrix, translate(0, 2, 0));
+            worldMatrix = mult(worldMatrix, translate(0, 2, 0));
             worldMatrix = mult(worldMatrix, translate(-7, 3.2, -14));
             worldMatrix = mult(worldMatrix, rotateX(currAngle));
             worldMatrix = mult(worldMatrix, translate(0, -2, 0));
             worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
-
             gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
             gl.uniform1i(texImageLoc1, 2);
+            if (selectedObjectId == 4) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+            else gl.uniform3f(matEmitLoc1, 0, 0, 0);
             gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                 BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount,
                 swing_left_VertexCount);
@@ -962,9 +1008,10 @@
             worldMatrix = mult(worldMatrix, rotateX(-currAngle));
             worldMatrix = mult(worldMatrix, translate(0, -2.0, 0));
             worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
-
             gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
             gl.uniform1i(texImageLoc1, 2);
+            if (selectedObjectId == 5) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+            else gl.uniform3f(matEmitLoc1, 0, 0, 0);
             gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                 BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
                 swing_left_VertexCount, swing_right_VertexCount);
@@ -974,7 +1021,8 @@
 
 
             //------------------------------------------------------------------------------)
-            //2026-07-28  lamp 국소조명 lighting  
+            //2026-07-28 lamp 국소조명 lighting 
+            //2026 08/01 ✓
 
             for (let x = -18; x <= 18; x += 36) {
                 for (let z = 13; z >= -20; z -= 33) {
@@ -1006,7 +1054,7 @@
 
 
             //SeeSaw ani
-            let time02 = performance.now() * 0.001;
+            time02 = performance.now() * 0.001;
             let SwingAngle02 = 15;
             let speed02 = 2.0;
             let currAngle02 = SwingAngle02 * Math.sin(time02 * speed02);
@@ -1027,6 +1075,8 @@
 
 
                 //SeeSaw Head
+                if (selectedObjectId == 6) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+                else gl.uniform3f(matEmitLoc1, 0, 0, 0);
                 worldMatrix = scalem(8, 8, 8);
                 worldMatrix = mult(worldMatrix, rotateY(90));
                 if (z === 6 ? worldMatrix = mult(worldMatrix, rotateX(currAngle02)) :
@@ -1038,6 +1088,7 @@
                 gl.uniform1f(matShLoc1, 1);
                 gl.uniform3f(matSpecLoc1, 0, 0, 0);
                 gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+
                 gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                     BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
                     swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount, SeeSaw_Head_VertexCount);
