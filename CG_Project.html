@@ -161,9 +161,10 @@
         let eye02 = vec3(0, 5, 0), at02 = vec3(0, 0, 0), cameraVec02 = vec3(0, -0.4472, -0.8944);
         var eyePosLoc02;
 
-           let time = performance.now() * 0.001;
-           let time02 = performance.now() * 0.001;
-       // let TimeFlug = false;
+        //color-picking 
+        let time = performance.now() * 0.001;
+        let time02 = performance.now() * 0.001;
+     
 
 
 
@@ -323,8 +324,8 @@
             gl.uniform3f(gl.getUniformLocation(program1, "lightDir"), 1, 1, 1);
 
             gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 2);
-            //  gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 10);
-            //  gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0);
+              gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 10);
+              gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0);
 
             var alphaLoc = gl.getUniformLocation(program1, "uAlpha");
             gl.uniform1f(alphaLoc, 1.0);
@@ -652,7 +653,7 @@
 
                                 $text.textContent = `추억을 회상 해보세요!`;
 
-                                let totalTime = 15;
+                                let totalTime = 30 ;
                                 let alpha = 1.0;
                                 const Timer = setInterval(() => {
                                     if (totalTime <= 0) {
@@ -980,7 +981,7 @@
 
 
 
-            //swing right
+            
              time = performance.now() * 0.001;
             let SwingAngle = 45;
             let speed = 2.0;
