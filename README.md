@@ -6,7 +6,7 @@ WebGL과 GLSL을 이용한 웹 애플리케이션 제작하기
 - 프로젝트명: childhood-recollection
 WebGL을 활용하여 어린시절의 추억을 3D공간으로 구현한 웹 애플리케이션입니다.
 - 저장소명: [@dbsckd4359] https://github.com/dbsckd4359/2026_childhood-recollection
-- 성격: OpenGL기반 WebGL그래픽스 
+- 성격: OpenGL기반 그래픽스 
 - 개발 형태: // 
 - 개발 인원: 1
 - 개발 기간: before: 2026/06/01 ~ 2026/06/13 | after: 2026/07/21 ~ ing
@@ -25,6 +25,7 @@ WebGL을 활용하여 어린시절의 추억을 3D공간으로 구현한 웹 애
   - Blender  
 
 ## 사용흐름
+
 
 
 ## 향후 추가사항
