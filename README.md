@@ -5,10 +5,10 @@ WebGL과 GLSL을 이용한 웹 애플리케이션 제작하기
 ## 1. 프로젝트 개요
 - 프로젝트명: childhood-recollection
 WebGL을 활용하여 어린시절의 추억을 3D공간으로 구현한 웹 애플리케이션입니다.
-- 저장소명: [@dbsckd4359] https://github.com/dbsckd4359/2026_childhood-recollection
+- 저장소명: 2026_Computer-graphics
 - 성격: OpenGL기반 그래픽스 
-- 개발 형태: // 
-- 개발 인원: 1
+- 개발 형태: JS기반 클라이언트 사이드 3D 그래픽스 렌더링
+- 개발 인원: [@dbsckd4359]  https://github.com/dbsckd4359/2026_Computer-Graphics
 - 개발 기간: before: 2026/06/01 ~ 2026/06/13 | after: 2026/07/21 ~ ing
 - 핵심 목표:
      - WebGL 그래픽스 파이프라인의 직접 제어 및 이해
@@ -24,9 +24,11 @@ WebGL을 활용하여 어린시절의 추억을 3D공간으로 구현한 웹 애
 - Tools
   - Blender  
 
+## 프로젝트 실행 
+CG_Project.html파일을 브라우저로 열거나, vsCode의 Live Server 확장 프로그램을 사용하여 실행합니다 
+
 ## 사용흐름
-
-
+우상단 사이드 패널의 내용처럼 WASD를 통해 이동할 수 있으며 빠른 흐름을 원하면 Alt + mouseWheel을 통한 이동이 가능합니다 시선 제어는 Alt + mouseMove 를 통해 제어가 가능합니다 
 
 ## 향후 추가사항
 1. 가로등(LampObject)광원의 국소 조명 및 Emissive 셰이더 적용 ✓
