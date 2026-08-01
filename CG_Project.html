@@ -161,10 +161,18 @@
         let eye02 = vec3(0, 5, 0), at02 = vec3(0, 0, 0), cameraVec02 = vec3(0, -0.4472, -0.8944);
         var eyePosLoc02;
 
+        const Camera = { //카메라 시점 데이터
+            free: 0,
+            boarded: 1 //탑승
+        }
+        let currCameraState = Camera.free;
+        let boardedObj = null;
+
+        let CurrMerryWorldMat = mat4();
         //color-picking 
         let time = performance.now() * 0.001;
         let time02 = performance.now() * 0.001;
-     
+
 
 
 
@@ -244,8 +252,6 @@
             viewMatLoc1 = gl.getUniformLocation(program1, "viewMat");
             gl.uniformMatrix4fv(viewMatLoc1, false, flatten(viewMatrix));
 
-            //case 2. viewMat 추가 
-
             // 3D perspective viewing
             var aspectRatio = canvas.width / canvas.height;
             projectMatrix = perspective(90, aspectRatio, 0.001, 1000);
@@ -323,9 +329,9 @@
             gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), 1, 1, 1);
             gl.uniform3f(gl.getUniformLocation(program1, "lightDir"), 1, 1, 1);
 
-            gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 2);
-              gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 10);
-              gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0);
+            //   gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 2);
+            //      gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 10);
+            //  gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0);
 
             var alphaLoc = gl.getUniformLocation(program1, "uAlpha");
             gl.uniform1f(alphaLoc, 1.0);
@@ -460,69 +466,69 @@
                     BenchVertexCount + SeeSawVertexCount + MerryVertexCount, CrossBarVertexCount);
 
 
-              
-                        let SwingAngle = 45;
-                        let speed = 2.0;
-                        let currAngle = SwingAngle * Math.sin(time * speed);
 
-                        //swing left            
-                        gl.uniform4f(uColorLoc2, (4.0 / 255.0), 0, 1, 1);
-                        worldMatrix = mat4();
-                        worldMatrix = mult(worldMatrix, translate(0, 2, 0));
-                        worldMatrix = mult(worldMatrix, translate(-7, 3.2, -14));
-                        worldMatrix = mult(worldMatrix, rotateX(currAngle));
-                        worldMatrix = mult(worldMatrix, translate(0, -2, 0));
-                        worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
+                let SwingAngle = 45;
+                let speed = 2.0;
+                let currAngle = SwingAngle * Math.sin(time * speed);
 
-                        gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
-                        gl.uniform1i(texImageLoc1, 2);
-                        gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
-                            BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount,
-                            swing_left_VertexCount);
+                //swing left            
+                gl.uniform4f(uColorLoc2, (4.0 / 255.0), 0, 1, 1);
+                worldMatrix = mat4();
+                worldMatrix = mult(worldMatrix, translate(0, 2, 0));
+                worldMatrix = mult(worldMatrix, translate(-7, 3.2, -14));
+                worldMatrix = mult(worldMatrix, rotateX(currAngle));
+                worldMatrix = mult(worldMatrix, translate(0, -2, 0));
+                worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
 
-                        //swing right
-                        gl.uniform4f(uColorLoc2, (5.0 / 255.0), 0, 1, 1);
-                        worldMatrix = mat4();
-                        worldMatrix = mult(worldMatrix, translate(0, 2, 0));
-                        worldMatrix = mult(worldMatrix, translate(-3.0, 3.2, -14));
-                        worldMatrix = mult(worldMatrix, rotateX(-currAngle));
-                        worldMatrix = mult(worldMatrix, translate(0, -2.0, 0));
-                        worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
+                gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                gl.uniform1i(texImageLoc1, 2);
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                    BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount,
+                    swing_left_VertexCount);
 
-                        gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
-                        gl.uniform1i(texImageLoc1, 2);
-                        gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
-                            BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
-                            swing_left_VertexCount, swing_right_VertexCount);
+                //swing right
+                gl.uniform4f(uColorLoc2, (5.0 / 255.0), 0, 1, 1);
+                worldMatrix = mat4();
+                worldMatrix = mult(worldMatrix, translate(0, 2, 0));
+                worldMatrix = mult(worldMatrix, translate(-3.0, 3.2, -14));
+                worldMatrix = mult(worldMatrix, rotateX(-currAngle));
+                worldMatrix = mult(worldMatrix, translate(0, -2.0, 0));
+                worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
 
-
+                gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                gl.uniform1i(texImageLoc1, 2);
+                gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                    BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
+                    swing_left_VertexCount, swing_right_VertexCount);
 
 
-                        //SeeSaw ani
-                        let SwingAngle02 = 15;
-                        let speed02 = 2.0;
-                        let currAngle02 = SwingAngle02 * Math.sin(time02 * speed02);
-                        //SeeSaw Head
-                        for (let z = 9; z >= 6; z -= 3) {
-                            gl.uniform4f(uColorLoc2, (6.0 / 255.0), 0, 1, 1);
-                            worldMatrix = scalem(8, 8, 8);
-                            worldMatrix = mult(worldMatrix, rotateY(90));
-                            if (z === 6 ? worldMatrix = mult(worldMatrix, rotateX(currAngle02)) :
-                                worldMatrix = mult(worldMatrix, rotateX(-currAngle02)))
-                                worldMatrix = mult(translate(-12, 1.2, z), worldMatrix);
-                            gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
-                            gl.uniform1i(texImageLoc1, 0);
-                            gl.uniform1f(matShLoc1, 1);
-                            gl.uniform3f(matSpecLoc1, 0, 0, 0);
-                            gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-                            gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
-                                BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
-                                swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount, SeeSaw_Head_VertexCount);
 
-                        }
 
-     
-             
+                //SeeSaw ani
+                let SwingAngle02 = 15;
+                let speed02 = 2.0;
+                let currAngle02 = SwingAngle02 * Math.sin(time02 * speed02);
+                //SeeSaw Head
+                for (let z = 9; z >= 6; z -= 3) {
+                    gl.uniform4f(uColorLoc2, (6.0 / 255.0), 0, 1, 1);
+                    worldMatrix = scalem(8, 8, 8);
+                    worldMatrix = mult(worldMatrix, rotateY(90));
+                    if (z === 6 ? worldMatrix = mult(worldMatrix, rotateX(currAngle02)) :
+                        worldMatrix = mult(worldMatrix, rotateX(-currAngle02)))
+                        worldMatrix = mult(translate(-12, 1.2, z), worldMatrix);
+                    gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                    gl.uniform1i(texImageLoc1, 0);
+                    gl.uniform1f(matShLoc1, 1);
+                    gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                    gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+                    gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                        BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
+                        swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount, SeeSaw_Head_VertexCount);
+
+                }
+
+
+
                 //===================================================================================================
 
 
@@ -540,7 +546,33 @@
 
 
                 gl.useProgram(program1);
+                return selectedObjectId;
             }
+
+            function Switching_ViewData() {
+                let pickingObjectId = PickingObject(event);
+
+                if (pickingObjectId === 0) return;
+                else if (pickingObjectId === 2) { //Merry
+
+                    boardedObj = {
+                        getWorldMat: CurrMerryWorldMat,
+                        eyeOffset: vec3(0, 1, 0), //카메라
+                        targetOffset: vec3(-5, 1, 0) //시선 방향
+
+                    }
+                    currCameraState = Camera.boarded;
+
+                } else {
+                    console.log(`about pickingObject Id : ${pickingObjectId}`);
+                }
+
+
+            }
+
+
+
+
 
 
 
@@ -551,7 +583,9 @@
                     lastPosX = event.clientX;
                     canvas.style.cursor = "grab";
                 } else {
-                    PickingObject(event);
+                    // PickingObject(event);
+                    //view transitions
+                    Switching_ViewData();
                 }
             });
 
@@ -653,7 +687,7 @@
 
                                 $text.textContent = `추억을 회상 해보세요!`;
 
-                                let totalTime = 30 ;
+                                let totalTime = 30;
                                 let alpha = 1.0;
                                 const Timer = setInterval(() => {
                                     if (totalTime <= 0) {
@@ -730,11 +764,42 @@
             gl.useProgram(program1);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-            at[0] = eye[0] + cameraVec[0];
-            at[1] = eye[1] + cameraVec[1];
-            at[2] = eye[2] + cameraVec[2];
-            viewMatrix = lookAt(eye, at, vec3(0, 1, 0));
-            gl.uniform3fv(eyePosLoc1, flatten(eye), 0);
+            if (currCameraState === Camera.free) {
+                at[0] = eye[0] + cameraVec[0];
+                at[1] = eye[1] + cameraVec[1];
+                at[2] = eye[2] + cameraVec[2];
+                viewMatrix = lookAt(eye, at, vec3(0, 1, 0));
+                gl.uniform3fv(eyePosLoc1, flatten(eye), 0);
+
+            } else if (currCameraState === Camera.boarded) {
+                let objMatrix = boardedObj.getWorldMat;
+
+               // console.log(vec4(boardedObj.eyeOffset, 1.0));
+                let worldEye = mult(objMatrix, vec4(boardedObj.eyeOffset, 1.0));
+                let worldAt = mult(objMatrix, vec4(boardedObj.targetOffset, 1.0));
+               
+
+/*
+MV.js:592 Uncaught normalize: vector NaN,NaN,NaN has zero length
+normalize	@	MV.js:592
+lookAt	@	MV.js:438
+render	@	CG_Project.html:792
+*/
+
+
+
+
+
+                
+                //vec4 -> vec3
+                let currEye = vec3(worldEye[0], worldEye[1], worldEye[2]);
+                let currAt = vec3(worldAt[0], worldAt[1], worldAt[2]);
+                viewMatrix = lookAt(currEye, currAt, vec3(0, 1, 0));
+
+                gl.uniform3fv(eyePosLoc1, flatten(currEye), 0);
+
+            }
+
             gl.uniformMatrix4fv(viewMatLoc1, false, flatten(viewMatrix));
 
 
@@ -905,7 +970,9 @@
             MerryTheta--;
             worldMatrix = mult(worldMatrix, rotateY(MerryTheta))
             worldMatrix = mult(translate(10, 1, 5), worldMatrix);
+            CurrMerryWorldMat = worldMatrix; //dynamic view
             gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+
             gl.uniform1i(texImageLoc1, 0);
             gl.uniform1f(matShLoc1, 1);
             gl.uniform3f(matSpecLoc1, 0, 0, 0);
@@ -981,8 +1048,8 @@
 
 
 
-            
-             time = performance.now() * 0.001;
+
+            time = performance.now() * 0.001;
             let SwingAngle = 45;
             let speed = 2.0;
             let currAngle = SwingAngle * Math.sin(time * speed);
@@ -1096,8 +1163,10 @@
 
             }
 
+
             window.requestAnimationFrame(render);
         }
+
 
 
         function generateModel() {
