@@ -161,18 +161,72 @@
         let eye02 = vec3(0, 5, 0), at02 = vec3(0, 0, 0), cameraVec02 = vec3(0, -0.4472, -0.8944);
         var eyePosLoc02;
 
+
+        //color-picking 
+        let time = performance.now() * 0.001;
+        let time02 = performance.now() * 0.001;
         const Camera = { //카메라 시점 데이터
             free: 0,
             boarded: 1 //탑승
         }
         let currCameraState = Camera.free;
         let boardedObj = null;
-
         let CurrMerryWorldMat = mat4();
-        //color-picking 
-        let time = performance.now() * 0.001;
-        let time02 = performance.now() * 0.001;
 
+        let boarded_swing = null;
+        let currSwingWorldMat = mat4();
+
+        let boarded_seeSaw = null;
+        let currSeeSawWorldMat = mat4();
+
+        let pickingObjectId; //frameLoop of global
+
+        //dynamic view
+        function Updata_ViewMatrix(picking_Obj_Id) {
+            if (picking_Obj_Id === 0) return; //floor
+
+            else if (picking_Obj_Id === 2) { //Merry
+                boardedObj = {
+                    getWorldMat: CurrMerryWorldMat,
+                    eyeOffset: vec3(0, 1, 0), //카메라
+                    targetOffset: vec3(-5, 1, 0) //시선 방향
+
+                }
+
+                currCameraState = Camera.boarded;
+            
+            } else if (picking_Obj_Id === 2) { 
+                boardedObj = {
+                    getWorldMat: CurrMerryWorldMat,
+                    eyeOffset: vec3(0, 1, 0), //카메라
+                    targetOffset: vec3(-1, 1, 0) //시선 방향
+                }
+
+                currCameraState = Camera.boarded;
+            
+            } else if (picking_Obj_Id === 5) { //swing
+                boardedObj = {
+                    getWorldMat: currSwingWorldMat,
+                    eyeOffset: vec3(0, 1, 0), //카메라
+                    targetOffset: vec3(0, 1, 1) //시선 방향
+                }
+
+                currCameraState = Camera.boarded;
+
+            }else if (picking_Obj_Id === 6) { //seesaw
+                boardedObj = {
+                    getWorldMat: currSeeSawWorldMat,
+                    eyeOffset: vec3(0, 1, 0), //카메라
+                    targetOffset: vec3(0, 1, -1) //시선 방향
+                }
+
+                currCameraState = Camera.boarded;
+
+
+            } else {
+                console.log(`about pickingObject Id : ${picking_Obj_Id}`);
+            }
+        }
 
 
 
@@ -550,11 +604,10 @@
             }
 
             function Switching_ViewData() {
-                let pickingObjectId = PickingObject(event);
+                pickingObjectId = PickingObject(event);
 
                 if (pickingObjectId === 0) return;
                 else if (pickingObjectId === 2) { //Merry
-
                     boardedObj = {
                         getWorldMat: CurrMerryWorldMat,
                         eyeOffset: vec3(0, 1, 0), //카메라
@@ -562,6 +615,24 @@
 
                     }
                     currCameraState = Camera.boarded;
+
+                 } else if (pickingObjectId === 5) { //swing
+                boardedObj = {
+                    getWorldMat: currSwingWorldMat,
+                    eyeOffset: vec3(0, 1, 0), //카메라
+                    targetOffset: vec3(0, 1, 1) //시선 방향
+                }
+
+                currCameraState = Camera.boarded;
+
+            }else if (pickingObjectId === 6) { //seesaw
+                boardedObj = {
+                    getWorldMat: currSeeSawWorldMat,
+                    eyeOffset: vec3(0, 1, 0), //카메라
+                    targetOffset: vec3(1, 1, 0) //시선 방향
+                }
+
+                currCameraState = Camera.boarded;
 
                 } else {
                     console.log(`about pickingObject Id : ${pickingObjectId}`);
@@ -584,7 +655,7 @@
                     canvas.style.cursor = "grab";
                 } else {
                     // PickingObject(event);
-                    //view transitions
+                    //view transition func
                     Switching_ViewData();
                 }
             });
@@ -772,28 +843,21 @@
                 gl.uniform3fv(eyePosLoc1, flatten(eye), 0);
 
             } else if (currCameraState === Camera.boarded) {
+                Updata_ViewMatrix(pickingObjectId);
+                // console.log(boardedObj.getWorldMat);
+
                 let objMatrix = boardedObj.getWorldMat;
 
-               // console.log(vec4(boardedObj.eyeOffset, 1.0));
-                let worldEye = mult(objMatrix, vec4(boardedObj.eyeOffset, 1.0));
-                let worldAt = mult(objMatrix, vec4(boardedObj.targetOffset, 1.0));
-               
-
-/*
-MV.js:592 Uncaught normalize: vector NaN,NaN,NaN has zero length
-normalize	@	MV.js:592
-lookAt	@	MV.js:438
-render	@	CG_Project.html:792
-*/
+                //console.log(vec4(boardedObj.eyeOffset, 1.0));
+                let worldEye = multMat4Vec4(objMatrix, vec4(boardedObj.eyeOffset, 1.0));
+                let worldAt = multMat4Vec4(objMatrix, vec4(boardedObj.targetOffset, 1.0));
+                //   console.log(worldEye);
 
 
-
-
-
-                
                 //vec4 -> vec3
-                let currEye = vec3(worldEye[0], worldEye[1], worldEye[2]);
+                let currEye = vec3(worldEye[0], worldEye[1]-5 , worldEye[2]);
                 let currAt = vec3(worldAt[0], worldAt[1], worldAt[2]);
+                console.log(currEye);
                 viewMatrix = lookAt(currEye, currAt, vec3(0, 1, 0));
 
                 gl.uniform3fv(eyePosLoc1, flatten(currEye), 0);
@@ -1071,11 +1135,13 @@ render	@	CG_Project.html:792
 
             //swing right
             worldMatrix = mat4();
+           
             worldMatrix = mult(worldMatrix, translate(0, 2, 0));
             worldMatrix = mult(worldMatrix, translate(-3.0, 3.2, -14));
             worldMatrix = mult(worldMatrix, rotateX(-currAngle));
             worldMatrix = mult(worldMatrix, translate(0, -2.0, 0));
             worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
+              currSwingWorldMat = worldMatrix;
             gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
             gl.uniform1i(texImageLoc1, 2);
             if (selectedObjectId == 5) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
@@ -1121,7 +1187,7 @@ render	@	CG_Project.html:792
             }
 
 
-            //SeeSaw ani
+            //SeeSaw animations
             time02 = performance.now() * 0.001;
             let SwingAngle02 = 15;
             let speed02 = 2.0;
@@ -1145,13 +1211,14 @@ render	@	CG_Project.html:792
                 //SeeSaw Head
                 if (selectedObjectId == 6) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
                 else gl.uniform3f(matEmitLoc1, 0, 0, 0);
-                worldMatrix = scalem(8, 8, 8);
+                worldMatrix = scalem(8, 8, 8); 
                 worldMatrix = mult(worldMatrix, rotateY(90));
                 if (z === 6 ? worldMatrix = mult(worldMatrix, rotateX(currAngle02)) :
                     worldMatrix = mult(worldMatrix, rotateX(-currAngle02)))
-
                     worldMatrix = mult(translate(-12, 1.2, z), worldMatrix);
-                gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+                
+                  currSeeSawWorldMat = worldMatrix;
+                    gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
                 gl.uniform1i(texImageLoc1, 0);
                 gl.uniform1f(matShLoc1, 1);
                 gl.uniform3f(matSpecLoc1, 0, 0, 0);
