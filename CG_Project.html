@@ -186,20 +186,12 @@
             if (picking_Obj_Id === 0) return; //floor
 
             else if (picking_Obj_Id === 2) { //Merry
+                CurrMerryWorldMat[1][1] =2;
                 boardedObj = {
                     getWorldMat: CurrMerryWorldMat,
                     eyeOffset: vec3(0, 1, 0), //카메라
                     targetOffset: vec3(-5, 1, 0) //시선 방향
 
-                }
-
-                currCameraState = Camera.boarded;
-            
-            } else if (picking_Obj_Id === 2) { 
-                boardedObj = {
-                    getWorldMat: CurrMerryWorldMat,
-                    eyeOffset: vec3(0, 1, 0), //카메라
-                    targetOffset: vec3(-1, 1, 0) //시선 방향
                 }
 
                 currCameraState = Camera.boarded;
@@ -217,7 +209,7 @@
                 boardedObj = {
                     getWorldMat: currSeeSawWorldMat,
                     eyeOffset: vec3(0, 1, 0), //카메라
-                    targetOffset: vec3(0, 1, -1) //시선 방향
+                    targetOffset: vec3(0, 1, -5) //시선 방향
                 }
 
                 currCameraState = Camera.boarded;
@@ -230,9 +222,9 @@
 
 
 
-        const bgm = new Audio(`Audio/background_music.mp3`);
-        bgm.loop = true;
-        bgm.volume = 0.5;
+      //  const bgm = new Audio(`Audio/background_music.mp3`);
+      //  bgm.loop = true;
+       // bgm.volume = 0.5;
 
         generateModel();
         await loadOBJModel("models/Slider.obj");
@@ -383,8 +375,8 @@
             gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), 1, 1, 1);
             gl.uniform3f(gl.getUniformLocation(program1, "lightDir"), 1, 1, 1);
 
-            //   gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 2);
-            //      gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 10);
+              gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 2);
+           //      gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 10);
             //  gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0);
 
             var alphaLoc = gl.getUniformLocation(program1, "uAlpha");
@@ -847,17 +839,18 @@
                 // console.log(boardedObj.getWorldMat);
 
                 let objMatrix = boardedObj.getWorldMat;
-
+                
                 //console.log(vec4(boardedObj.eyeOffset, 1.0));
                 let worldEye = multMat4Vec4(objMatrix, vec4(boardedObj.eyeOffset, 1.0));
+                console.log(worldEye); 
                 let worldAt = multMat4Vec4(objMatrix, vec4(boardedObj.targetOffset, 1.0));
-                //   console.log(worldEye);
+                //  console.log(worldAt);
 
 
                 //vec4 -> vec3
-                let currEye = vec3(worldEye[0], worldEye[1]-5 , worldEye[2]);
+                let currEye = vec3(worldEye[0], worldEye[1], worldEye[2]);
                 let currAt = vec3(worldAt[0], worldAt[1], worldAt[2]);
-                console.log(currEye);
+             //   console.log(currEye);
                 viewMatrix = lookAt(currEye, currAt, vec3(0, 1, 0));
 
                 gl.uniform3fv(eyePosLoc1, flatten(currEye), 0);
@@ -1030,11 +1023,15 @@
             */
 
             //Merry
-            worldMatrix = scalem(8, 8, 8);
-            MerryTheta--;
+
+           worldMatrix = mat4();
+          MerryTheta--;
+        // CurrMerryWorldMat = worldMatrix;
+          worldMatrix = mult(worldMatrix,translate(10, 1, 5));
             worldMatrix = mult(worldMatrix, rotateY(MerryTheta))
-            worldMatrix = mult(translate(10, 1, 5), worldMatrix);
-            CurrMerryWorldMat = worldMatrix; //dynamic view
+              worldMatrix = mult(worldMatrix, scalem(8, 8, 8));
+           //   console.log(worldMatrix);
+               CurrMerryWorldMat = worldMatrix;
             gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
 
             gl.uniform1i(texImageLoc1, 0);
@@ -1125,6 +1122,7 @@
             worldMatrix = mult(worldMatrix, rotateX(currAngle));
             worldMatrix = mult(worldMatrix, translate(0, -2, 0));
             worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
+           
             gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
             gl.uniform1i(texImageLoc1, 2);
             if (selectedObjectId == 4) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
@@ -1135,13 +1133,14 @@
 
             //swing right
             worldMatrix = mat4();
-           
+          
             worldMatrix = mult(worldMatrix, translate(0, 2, 0));
             worldMatrix = mult(worldMatrix, translate(-3.0, 3.2, -14));
             worldMatrix = mult(worldMatrix, rotateX(-currAngle));
             worldMatrix = mult(worldMatrix, translate(0, -2.0, 0));
+             currSwingWorldMat = worldMatrix; //scale반영X
             worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
-              currSwingWorldMat = worldMatrix;
+                
             gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
             gl.uniform1i(texImageLoc1, 2);
             if (selectedObjectId == 5) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
@@ -1198,6 +1197,7 @@
                 worldMatrix = scalem(2, 2, 2);
                 worldMatrix = mult(worldMatrix, rotateY(90));
                 worldMatrix = mult(translate(-12, 0, z), worldMatrix);
+                
                 gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
                 gl.uniform1i(texImageLoc1, 0);
                 gl.uniform1f(matShLoc1, 1);
@@ -1209,20 +1209,21 @@
 
 
                 //SeeSaw Head
-                if (selectedObjectId == 6) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
-                else gl.uniform3f(matEmitLoc1, 0, 0, 0);
-                worldMatrix = scalem(8, 8, 8); 
-                worldMatrix = mult(worldMatrix, rotateY(90));
-                if (z === 6 ? worldMatrix = mult(worldMatrix, rotateX(currAngle02)) :
-                    worldMatrix = mult(worldMatrix, rotateX(-currAngle02)))
-                    worldMatrix = mult(translate(-12, 1.2, z), worldMatrix);
-                
-                  currSeeSawWorldMat = worldMatrix;
+              worldMatrix = mat4();
+                 worldMatrix = mult(worldMatrix,  translate(-12, 1.2, z));
+                if (z === 6 ? worldMatrix = mult(worldMatrix, rotateZ(currAngle02)) : worldMatrix = mult(worldMatrix, rotateZ(-currAngle02)))
+                   worldMatrix = mult(worldMatrix, rotateY(90)); 
+                currSeeSawWorldMat = worldMatrix; //기준좌표가 0,0,0 
+                worldMatrix = mult(worldMatrix,scalem(8, 8, 8)); 
+             
+                 //  currSeeSawWorldMat = worldMatrix;
                     gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
                 gl.uniform1i(texImageLoc1, 0);
                 gl.uniform1f(matShLoc1, 1);
                 gl.uniform3f(matSpecLoc1, 0, 0, 0);
                 gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+                  if (selectedObjectId == 6) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+                else gl.uniform3f(matEmitLoc1, 0, 0, 0);
 
                 gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                     BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
