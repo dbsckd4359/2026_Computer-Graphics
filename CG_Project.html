@@ -88,11 +88,17 @@
              position: absolute;
              visibility: hidden;
            
-             /*
+             
              &>.choise-btn{
-           
+             border: thick rgba(63, 63, 70, 0.6) solid;
+                background-color: rgba(24, 24, 27, 0.85);
+                border-radius: 20px;
+                color: red;
+                font-size: 30px;
+                white-space: nowrap; 
               }
             
+              /*
               &>.choise-btn02{
          
         }
@@ -162,7 +168,7 @@
         </div>
       
     <div class = "canvas-btn">
-     <button class="choise-btn">탑승</button>
+     <button class="choise-btn">이동하기 </button>
     </div>
 
     <div class = "back-canvas-btn">
@@ -238,62 +244,58 @@
         let visible = false; //카메라 back위치 렌더링 오류 해결 플러그
         let pickObjworldPos;
 
+        let step_picking_flug =false; //탑승 시 unPicking & picking 제어
 
         //dynamic view
         function Updata_ViewMatrix(picking_Obj_Id) {
             if (picking_Obj_Id === 0) return; //floor
 
             else if (picking_Obj_Id === 2) { //Merry
-                CurrMerryWorldMat[1][1] = 2;
+                CurrMerryWorldMat[1][1] = 2; //eye 임시조정
                 boardedObj = {
                     getWorldMat: CurrMerryWorldMat,
                     eyeOffset: vec3(0, 1, 0), //카메라
                     targetOffset: vec3(-5, 1, 0) //시선 방향
 
                 }
-
-                currCameraState = Camera.boarded;
+               
 
             } else if (picking_Obj_Id === 5) { //swing
                 boardedObj = {
                     getWorldMat: currSwingWorldMat,
-                    eyeOffset: vec3(0, 1, 0), //카메라
-                    targetOffset: vec3(0, 1, 1) //시선 방향
+                    eyeOffset: vec3(0, 1, 0),
+                    targetOffset: vec3(0, 1, 1) 
                 }
 
-                currCameraState = Camera.boarded;
+             
 
             } else if (picking_Obj_Id === 6) { //seesaw
                 boardedObj = {
                     getWorldMat: currSeeSawWorldMat,
-                    eyeOffset: vec3(0, 1, 0), //카메라
-                    targetOffset: vec3(0, 1, -5) //시선 방향
+                    eyeOffset: vec3(0, 1, 0), 
+                    targetOffset: vec3(0, 1, -5)
                 }
-
-                currCameraState = Camera.boarded;
 
 
             } else {
                 console.log(`about pickingObject Id : ${picking_Obj_Id}`);
+                return;
             }
+            currCameraState = Camera.boarded;
+
+          
         }
 
 
-
-
-        //  const bgm = new Audio(`Audio/background_music.mp3`);
-        //  bgm.loop = true;
-        // bgm.volume = 0.5;
-
         generateModel();
         await loadOBJModel("models/Slider.obj");
-        await loadOBJModel("models/Swing.obj");
+       // await loadOBJModel("models/Swing.obj");
         await loadOBJModel("models/Barrier.obj");
         await loadOBJModel("models/street_bench.obj");
-        await loadOBJModel("models/SeeSaw02.obj");//SeeSaw
+      //  await loadOBJModel("models/SeeSaw02.obj");//SeeSaw
         await loadOBJModel("models/Teeter02.obj"); //Merry
         await loadOBJModel("models/CrossBar.obj");
-        await loadOBJModel("models/Lamp.obj");
+     //   await loadOBJModel("models/Lamp.obj");
         await loadOBJModel("models/swing_body02.obj");
         await loadOBJModel("models/swing_left.obj");
         await loadOBJModel("models/swing_right02.obj");
@@ -302,6 +304,10 @@
         await loadOBJModel("models/SeeSaw_body.obj");
         await loadOBJModel("models/SeeSaw_head.obj");
 
+
+        //  const bgm = new Audio(`Audio/background_music.mp3`);
+        //  bgm.loop = true;
+        // bgm.volume = 0.5;
 
 
         init();
@@ -656,7 +662,7 @@
                 return selectedObjectId;
             }
 
-            function Switching_ViewData() {
+            function Switching_ViewData() { //sub
                 if (pickingObjectId === 0) return;
                 else if (pickingObjectId === 2) { //Merry
                     boardedObj = {
@@ -704,12 +710,13 @@
             clipPos[2] / w];
             
                 const rect =   canvas.getBoundingClientRect();
-                const canvasX = e.clientX - rect.left; 
-                const canvasY = rect.bottom- e.clientY;
-             //  console.log(canvasX);
-                let ScreenX = ((NDC[0] + 1) / 2) * canvasX;
+                //const canvasX = e.clientX - rect.left; 
+                //const canvasY = rect.bottom- e.clientY;
+           
+                //  console.log(canvasX);
+                let ScreenX = ((NDC[0] + 1) / 2) * canvas.clientWidth;
          console.log(ScreenX);
-            let ScreenY = ((1 - NDC[1]) / 2) * canvasY;
+            let ScreenY = ((1 - NDC[1]) / 2) * canvas.clientHeight;
          //  console.log(ScreenX);
           // console.log(ScreenY);
 
@@ -727,8 +734,8 @@
           
             const $canvasBtn = document.querySelector(`.canvas-btn`);
 
-              const $canvasBtn_box02 = document.querySelector(`.back-canvas-btn`); 
-              const $choiseBtn03 = document.querySelector(`.choise-btn03`);
+              const $canvasBtn_box02 = document.querySelector(`.back-canvas-btn`); //뒤로가기
+              const $choiseBtn03 = document.querySelector(`.choise-btn03`); //뒤로가기버튼
             canvas.addEventListener("mousedown", function (e) {
                 if (event.altKey) {
                     isDragging = true;
@@ -774,12 +781,15 @@
                 Switching_ViewData(); 
                   $canvasBtn.style.visibility = `hidden`;
                 $canvasBtn_box02.style.visibility = `visible`;
+                  step_picking_flug = !step_picking_flug;
+                  selectedObjectId = 99999;
             });
 
             $choiseBtn03.addEventListener(`click`, ()=>{ //back lastEyePos
                  $canvasBtn.style.visibility = `hidden`;
         $canvasBtn_box02.style.visibility = `hidden`;
                 currCameraState = Camera.free;
+                 step_picking_flug = !step_picking_flug;
                
             });
 
@@ -968,7 +978,7 @@
                 Updata_ViewMatrix(pickingObjectId);
                 // console.log(boardedObj.getWorldMat);
 
-                let objMatrix = boardedObj.getWorldMat;
+                let objMatrix = boardedObj.getWorldMat; //update loop
 
                 //console.log(vec4(boardedObj.eyeOffset, 1.0));
                 let worldEye = multMat4Vec4(objMatrix, vec4(boardedObj.eyeOffset, 1.0));
@@ -1169,8 +1179,8 @@
             gl.uniform1f(matShLoc1, 1);
             gl.uniform3f(matSpecLoc1, 0, 0, 0);
             gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-           // if (selectedObjectId == 2) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0); 
-            gl.uniform3f(matEmitLoc1, 0, 0, 0);
+         if (selectedObjectId == 2) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+         if (selectedObjectId == 2 &&  step_picking_flug) gl.uniform3f(matEmitLoc1, 0,0,0);
             gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                 BarrierVertexCount + BenchVertexCount + SeeSawVertexCount, MerryVertexCount);
 
@@ -1275,8 +1285,9 @@
 
             gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
             gl.uniform1i(texImageLoc1, 2);
-           // if (selectedObjectId == 5) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
-             gl.uniform3f(matEmitLoc1, 0, 0, 0);
+             if (selectedObjectId == 5) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+              if (selectedObjectId == 5 &&  step_picking_flug) gl.uniform3f(matEmitLoc1, 0,0,0);
+
             gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                 BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
                 swing_left_VertexCount, swing_right_VertexCount);
@@ -1345,7 +1356,7 @@
                 worldMatrix = mult(worldMatrix, translate(-12, 1.2, z));
                 if (z === 6 ? worldMatrix = mult(worldMatrix, rotateZ(currAngle02)) : worldMatrix = mult(worldMatrix, rotateZ(-currAngle02)))
                     worldMatrix = mult(worldMatrix, rotateY(90));
-                currSeeSawWorldMat = worldMatrix; //기준좌표가 0,0,0 
+                currSeeSawWorldMat = worldMatrix; //기준좌표: 0,0,0 
                 seeSawWorldPos = worldMatrix.slice(0, 3).map((low) => low[3]);
                 worldMatrix = mult(worldMatrix, scalem(8, 8, 8));
 
@@ -1355,8 +1366,8 @@
                 gl.uniform1f(matShLoc1, 1);
                 gl.uniform3f(matSpecLoc1, 0, 0, 0);
                 gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-               // if (selectedObjectId == 6) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
-                 gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                if (selectedObjectId == 6) gl.uniform3f(matEmitLoc1, 0.2, 0.2, 0);
+                if (selectedObjectId && step_picking_flug) gl.uniform3f(matEmitLoc1, 0,0,0);
 
                 gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                     BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
