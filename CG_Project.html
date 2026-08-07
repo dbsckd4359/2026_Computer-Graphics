@@ -93,7 +93,7 @@
              border: thick rgba(63, 63, 70, 0.6) solid;
                 background-color: rgba(24, 24, 27, 0.85);
                 border-radius: 20px;
-                color: red;
+                color: white;
                 font-size: 30px;
                 white-space: nowrap; 
               }
@@ -118,7 +118,7 @@
                 border: thick rgba(63, 63, 70, 0.6) solid;
                 background-color: rgba(24, 24, 27, 0.85);
                 border-radius: 20px;
-                color: red;
+                color: white;
                 font-size: 30px;
                 white-space: nowrap; 
         }
@@ -305,9 +305,9 @@
         await loadOBJModel("models/SeeSaw_head.obj");
 
 
-        //  const bgm = new Audio(`Audio/background_music.mp3`);
-        //  bgm.loop = true;
-        // bgm.volume = 0.5;
+          const bgm = new Audio(`Audio/background_music.mp3`);
+          bgm.loop = true;
+         bgm.volume = 0.5;
 
 
         init();
@@ -441,8 +441,8 @@
             gl.uniform3f(gl.getUniformLocation(program1, "lightDir"), 1, 1, 1);
 
             gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 2);
-            //      gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 10);
-            //  gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0);
+                  gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 20);
+              gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0);
 
             var alphaLoc = gl.getUniformLocation(program1, "uAlpha");
             gl.uniform1f(alphaLoc, 1.0);
@@ -702,9 +702,9 @@
             let Pos = vec4(objWorldPos[0], objWorldPos[1], objWorldPos[2], 1.0);
 
             let clipPos = multMat4Vec4(projMatrix, multMat4Vec4(viewMatrix, Pos));
-
           //  console.log(clipPos);
-            const w = clipPos[3]; //원근감,
+
+            const w = clipPos[3]; 
             let NDC = [clipPos[0] / w,
             clipPos[1] / w,
             clipPos[2] / w];
@@ -712,15 +712,14 @@
                 const rect =   canvas.getBoundingClientRect();
                 //const canvasX = e.clientX - rect.left; 
                 //const canvasY = rect.bottom- e.clientY;
-           
-                //  console.log(canvasX);
+                // console.log(canvasY);
                 let ScreenX = ((NDC[0] + 1) / 2) * canvas.clientWidth;
          console.log(ScreenX);
             let ScreenY = ((1 - NDC[1]) / 2) * canvas.clientHeight;
          //  console.log(ScreenX);
           // console.log(ScreenY);
 
-            visible = (w > 0 && NDC[0] >= -1 && NDC[0] <= 1 && NDC[1] >= -1 && NDC[1] <= 1);  //
+            visible = (w > 0 && NDC[0] >= -1 && NDC[0] <= 1 && NDC[1] >= -1 && NDC[1] <= 1);  
             
             return { ScreenX, ScreenY, visible };
 
@@ -890,7 +889,7 @@
 
                                 $text.textContent = `추억을 회상 해보세요!`;
 
-                                let totalTime = 30;
+                                let totalTime = 60;
                                 let alpha = 1.0;
                                 const Timer = setInterval(() => {
                                     if (totalTime <= 0) {

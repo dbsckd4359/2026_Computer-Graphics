@@ -31,19 +31,20 @@ CG_Project.html파일을 브라우저로 열거나, vsCode의 Live Server 확장
 우상단 사이드 패널의 내용처럼 WASD를 통해 이동할 수 있으며 빠른 흐름을 원하면 Alt + mouseWheel을 통한 이동이 가능합니다 시선 제어는 Alt + mouseMove 를 통해 제어가 가능합니다 추가로 `merry`, `swing`, `seeSaw`기구 오브젝트를 picking(click)시 탑승이 가능합니다 
 
 ## 향후 추가사항
-1. 가로등(LampObject)광원의 국소 조명 및 Emissive 셰이더 적용 ✓
-- LampObject의 발광 부위를 추출하여 fragment shader에서 Emissive속성을 제어하여 실제 빛이
-분출되는 듯한 국소 Lighting효과 구현 
+1. 가로등(LampObject)광원의 국소 조명 및 Emissive 셰이더 적용 
+  - LampObject의 발광 부위를 추출하여 fragment shader에서 Emissive속성을 제어✓
+  - 실제 빛이 분출되는 듯한 국소 Lighting효과 구현(specular 및 Blinn Model 적용) ✓ 
 
 2. 마우스피킹(picking) 기반의 놀이터 기구에 대한 동적 카메라 뷰 전환 
-  - 기구 탑승이 가능한 애니메이션 구현 ✓
-	- 기구들의 시점 설정 ✓
-	- 사용자 인터렉션을 위한 요소 추가 후 picking과 동기화 ✓ ※object picking에 대한 버튼 활성화 좌표 ing
-	- 하차를 위한 로직 추가 ✓
+    - 기구 탑승이 가능한 애니메이션 구현 ✓
+	  - 기구들의 시점 설정 ✓
+	  - 사용자 인터렉션을 위한 요소 추가 후 picking과 동기화 ✓ ※object picking에 대한 버튼 활성화 좌표 구현 
+	  - 하차를 위한 로직 추가 ✓
 
-3. 오브젝트 국소 회전 애니메이션 구현 ✓
-- 놀이터 기구 오브젝트의 모델 변환 행렬 독립제어를 통한 부분 회전 애니메이션 구현
+3. 오브젝트 국소 회전 애니메이션 구현 
+- 놀이터 기구 오브젝트의 모델 변환 행렬 독립제어를 통한 부분 회전 애니메이션 구현 ✓
  
+
 4. 유틸리티 영역(타이머)를 전관판 오브젝트로 변경 또는 스피커와 사용자입력을 통한 인터렉션 요소 추가
 
 
