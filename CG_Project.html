@@ -375,29 +375,29 @@
                 gl.uniformMatrix4fv(projMatLoc1, false, flatten(projectMatrix));
 
 
-                texImageLoc1 = gl.getUniformLocation(program1, "texImage");
+                texImageLoc1 = gl.getUniformLocation(program1, "texImage"); 
                 loadTextureFbx("./Images/T_Generic_colors.bmp", gl.TEXTURE0);
 
 
-                texImageLoc1 = gl.getUniformLocation(program1, "texImage");
+                texImageLoc1 = gl.getUniformLocation(program1, "texImage");//before Barrier
                 loadTextureFbx("./Images/Playground.png", gl.TEXTURE1);
 
                 texImageLoc1 = gl.getUniformLocation(program1, "texImage");
                 loadTexture("./Images/swing_basecolor.png", gl.TEXTURE2);
 
-                texImageLoc1 = gl.getUniformLocation(program1, "texImage");
+                texImageLoc1 = gl.getUniformLocation(program1, "texImage");//bench
                 loadTexture("./Images/DefaultMaterial_BaseColor.png", gl.TEXTURE3);
 
                 texImageLoc1 = gl.getUniformLocation(program1, "texImage");
-                loadTexture("./Images/sand_03_diff_4k.jpg", gl.TEXTURE5);
+                loadTexture("./Images/sand_03_diff_4k.jpg", gl.TEXTURE4);
                 //normal mapping 적용 전
 
                 //Tree
                   texImageLoc1 = gl.getUniformLocation(program1, "texImage");
-                loadTexture("./Images/URP_3_Leaf.png", gl.TEXTURE6);
+                loadTexture("./Images/URP_3_Leaf.png", gl.TEXTURE5);
 
                   texImageLoc1 = gl.getUniformLocation(program1, "texImage");
-                loadTexture("./Images/URP_3_Trunk.png", gl.TEXTURE7);
+                loadTexture("./Images/URP_3_Trunk.png", gl.TEXTURE6);
 
                 function loadTexture(src, textureUnit) {
                     var imageTex = new Image();
@@ -605,9 +605,7 @@
                     worldMatrix = mult(worldMatrix, rotateX(currAngle));
                     worldMatrix = mult(worldMatrix, translate(0, -2, 0));
                     worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
-
                     gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
-                    gl.uniform1i(texImageLoc1, 2);
                     gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                         BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount,
                         swing_left_VertexCount);
@@ -620,9 +618,7 @@
                     worldMatrix = mult(worldMatrix, rotateX(-currAngle));
                     worldMatrix = mult(worldMatrix, translate(0, -2.0, 0));
                     worldMatrix = mult(worldMatrix, scalem(5, 5, 5));
-
                     gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
-                    gl.uniform1i(texImageLoc1, 2);
                     gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                         BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
                         swing_left_VertexCount, swing_right_VertexCount);
@@ -645,10 +641,6 @@
                     seeSawWorldPos = worldMatrix.slice(0, 3).map((low) => low[3]);
                     worldMatrix = mult(worldMatrix, scalem(8, 8, 8));
                         gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
-                        gl.uniform1i(texImageLoc1, 0);
-                        gl.uniform3f(matSpecLoc1, 0, 0, 0);
-                        gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-                          gl.uniform1f(matShLoc1, 1);
                         gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                             BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
                             swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount, SeeSaw_Head_VertexCount);
@@ -1015,7 +1007,7 @@
                 // Ground
                 worldMatrix = mat4();
                 gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
-                gl.uniform1i(texImageLoc1, 5);
+                gl.uniform1i(texImageLoc1, 4);
                 gl.uniform1f(matShLoc1, 1);
                 gl.uniform3f(matSpecLoc1, 0, 0, 0);
                 gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
@@ -1424,8 +1416,8 @@
                     worldMatrix = mult(worldMatrix, translate(x, 7, -15));
                     worldMatrix = mult(worldMatrix, scalem(8, 15, 8));
                     gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
-                      gl.uniform1i(texImageLoc1, 6);
-                       //gl.uniform1i(texImageLoc1, 7);
+                      gl.uniform1i(texImageLoc1, 5);
+                       gl.uniform1i(texImageLoc1, 6);
                 
                 gl.uniform3f(matSpecLoc1, 0, 0, 0);
                 gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
@@ -1441,8 +1433,8 @@
                     worldMatrix = mult(worldMatrix, translate(x, 7, 9));
                     worldMatrix = mult(worldMatrix, scalem(8, 15, 8));
                     gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
+                       gl.uniform1i(texImageLoc1, 5);
                        gl.uniform1i(texImageLoc1, 6);
-                      // gl.uniform1i(texImageLoc1, 7);
               
                 gl.uniform3f(matSpecLoc1, 0, 0, 0);
                 gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
