@@ -94,7 +94,7 @@
                 border: thick rgba(63, 63, 70, 0.6) solid;
                 background-color: rgba(24, 24, 27, 0.85);
                 border-radius: 20px;
-                color: white;
+                color: red;
                 font-size: 30px;
                 white-space: nowrap;
             }
@@ -120,11 +120,16 @@
                 border: thick rgba(63, 63, 70, 0.6) solid;
                 background-color: rgba(24, 24, 27, 0.85);
                 border-radius: 20px;
-                color: white;
+                color: red;
                 font-size: 30px;
                 white-space: nowrap;
             }
 
+        }
+
+        .canvas-file-btn {
+            position: absolute;
+            visibility: hidden;
         }
     </style>
 </head>
@@ -176,7 +181,9 @@
             <button class="choise-btn03">뒤로가기</button>
 
         </div>
-
+        <div class="canvas-file-btn">
+            <input type="file" id="bgm-input">
+        </div>
 
 
         <canvas id="glCanvas"></canvas>
@@ -242,8 +249,12 @@
 
             let pickingObjectId; //frameLoop of global
 
-            let merryWorldPos, swingWorldPos, seeSawWorldPos = vec3(0, 0, 0);
-            let visible = false; //카메라 back위치 렌더링 오류 해결 플러그
+            let merryWorldPos, swingWorldPos, seeSawWorldPos, sirenWorldPos = vec3(0, 0, 0);
+            let visible = {//카메라 back위치 렌더링 오류 해결 플러그
+                active: false,
+                PosNum: Infinity
+            }
+
             let pickObjworldPos;
 
             let step_picking_flug = false; //탑승 시 unPicking & picking 제어
@@ -308,11 +319,11 @@
 
             await loadOBJModel("models/unity_Mesh/Archway.obj");
             await loadOBJModel("models/unity_Mesh/Stand.obj");
-            await loadOBJModel("models/unity_Mesh/URP_Tree.obj");
+            //  await loadOBJModel("models/unity_Mesh/URP_Tree.obj");
             await loadOBJModel("models/CGTrader/siren.obj");
-            //   const bgm = new Audio(`Audio/background_music.mp3`);
-            // bgm.loop = true;
-            //  bgm.volume = 0.5;
+            const bgm = new Audio(`Audio/background_music.mp3`);
+            bgm.loop = true;
+            bgm.volume = 0.5;
 
 
             init();
@@ -375,7 +386,7 @@
                 gl.uniformMatrix4fv(projMatLoc1, false, flatten(projectMatrix));
 
 
-                texImageLoc1 = gl.getUniformLocation(program1, "texImage"); 
+                texImageLoc1 = gl.getUniformLocation(program1, "texImage");
                 loadTextureFbx("./Images/T_Generic_colors.bmp", gl.TEXTURE0);
 
 
@@ -393,10 +404,10 @@
                 //normal mapping 적용 전
 
                 //Tree
-                  texImageLoc1 = gl.getUniformLocation(program1, "texImage");
+                texImageLoc1 = gl.getUniformLocation(program1, "texImage");
                 loadTexture("./Images/URP_3_Leaf.png", gl.TEXTURE5);
 
-                  texImageLoc1 = gl.getUniformLocation(program1, "texImage");
+                texImageLoc1 = gl.getUniformLocation(program1, "texImage");
                 loadTexture("./Images/URP_3_Trunk.png", gl.TEXTURE6);
 
                 function loadTexture(src, textureUnit) {
@@ -453,7 +464,7 @@
                 gl.uniform3f(gl.getUniformLocation(program1, "lightDir"), 1, 1, 1);
 
                 gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 2);
-                //   gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 20);
+                gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), 20);
                 gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), 0);
 
                 var alphaLoc = gl.getUniformLocation(program1, "uAlpha");
@@ -632,21 +643,34 @@
                     let currAngle02 = SwingAngle02 * Math.sin(time02 * speed02);
                     //SeeSaw Head
                     for (let z = 9; z >= 6; z -= 3) {
-                          gl.uniform4f(uColorLoc2, (6.0 / 255.0), 0, 1, 1);
+                        gl.uniform4f(uColorLoc2, (6.0 / 255.0), 0, 1, 1);
                         worldMatrix = mat4();
-                    worldMatrix = mult(worldMatrix, translate(-12, 1.2, z));
-                    if (z === 6 ? worldMatrix = mult(worldMatrix, rotateZ(currAngle02)) : worldMatrix = mult(worldMatrix, rotateZ(-currAngle02)))
-                        worldMatrix = mult(worldMatrix, rotateY(90));
-                    currSeeSawWorldMat = worldMatrix; //기준좌표: 0,0,0 
-                    seeSawWorldPos = worldMatrix.slice(0, 3).map((low) => low[3]);
-                    worldMatrix = mult(worldMatrix, scalem(8, 8, 8));
+                        worldMatrix = mult(worldMatrix, translate(-12, 1.2, z));
+                        if (z === 6 ? worldMatrix = mult(worldMatrix, rotateZ(currAngle02)) : worldMatrix = mult(worldMatrix, rotateZ(-currAngle02)))
+                            worldMatrix = mult(worldMatrix, rotateY(90));
+                        currSeeSawWorldMat = worldMatrix; //기준좌표: 0,0,0 
+                        seeSawWorldPos = worldMatrix.slice(0, 3).map((low) => low[3]);
+                        worldMatrix = mult(worldMatrix, scalem(8, 8, 8));
                         gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
                         gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                             BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
                             swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount, SeeSaw_Head_VertexCount);
 
                     }
-   
+
+                    //siren
+
+                    gl.uniform4f(uColorLoc2, (7.0 / 255.0), 0, 1, 1);
+                    worldMatrix = mat4();
+                    worldMatrix = mult(worldMatrix, translate(5, 5.0, -20));
+                    worldMatrix = mult(worldMatrix, rotateY(140));
+                    worldMatrix = mult(worldMatrix, scalem(10, 10, 10));
+                    gl.uniformMatrix4fv(worldMatLoc2, false, flatten(worldMatrix));
+                    gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
+                        BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
+                        swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount + SeeSaw_Head_VertexCount +
+                        ArchwayVertexCount + StandVertexCount + URP_Tree_VertexCount, sirenVertexCount);
+
                     //===================================================================================================
 
 
@@ -703,7 +727,7 @@
 
                 }
 
-                function ViewPortPosition(objWorldPos, viewMatrix, projMatrix, e) {
+                function ViewPortPosition(objWorldPos, viewMatrix, projMatrix, pickId) {
                     let Pos = vec4(objWorldPos[0], objWorldPos[1], objWorldPos[2], 1.0);
 
                     let clipPos = multMat4Vec4(projMatrix, multMat4Vec4(viewMatrix, Pos));
@@ -724,8 +748,16 @@
                     //  console.log(ScreenX);
                     // console.log(ScreenY);
 
-                    visible = (w > 0 && NDC[0] >= -1 && NDC[0] <= 1 && NDC[1] >= -1 && NDC[1] <= 1);
+                    visible = {
+                        active: (w > 0 && NDC[0] >= -1 && NDC[0] <= 1 && NDC[1] >= -1 && NDC[1] <= 1),
+                        PosNum: 0
+                    }
 
+                    if (pickId === 7) {
+                        visible.PosNum = 1;
+                    } else {
+
+                    }
                     return { ScreenX, ScreenY, visible };
 
                 }
@@ -740,6 +772,8 @@
 
                 const $canvasBtn_box02 = document.querySelector(`.back-canvas-btn`); //뒤로가기
                 const $choiseBtn03 = document.querySelector(`.choise-btn03`); //뒤로가기버튼
+                const $fileBtn = document.querySelector(`.canvas-file-btn`);//file Input
+
                 canvas.addEventListener("mousedown", function (e) {
                     if (event.altKey) {
                         isDragging = true;
@@ -756,26 +790,35 @@
                         }
                         else if (pickingObjectId === 6) {
                             pickObjworldPos = seeSawWorldPos;
+                        } else if (pickingObjectId === 7) {
+                            pickObjworldPos = sirenWorldPos;
                         } else {
                             return; // %
                         }
 
-                        const { ScreenX, ScreenY, visible } = ViewPortPosition(pickObjworldPos, viewMatrix, projectMatrix, e);
+                        const { ScreenX, ScreenY, visible } = ViewPortPosition(pickObjworldPos, viewMatrix, projectMatrix, pickingObjectId);
                         //  console.log(ScreenX);
                         //console.log(ScreenY);
-                        console.log(visible);
+                        //console.log(visible);
 
 
-                        if (visible) {
+                        if (visible.PosNum === 0) {
                             $canvasBtn.style.left = `${ScreenX}px`;
                             $canvasBtn.style.bottom = `${ScreenY}px`;
-
                             $canvasBtn.style.visibility = `visible`;
-
+                          $fileBtn.style.visibility = `hidden`;
 
                         } else {
-                            $canvasBtn.style.visibility = `hidden`;
+                            $fileBtn.style.left = `${ScreenX}px`;
+                            $fileBtn.style.bottom = `${ScreenY}px`;
+                            $fileBtn.style.visibility = `visible`;
+                             $canvasBtn.style.visibility = `hidden`;
                         }
+                       
+
+
+
+
                     }
                 });
 
@@ -797,11 +840,19 @@
 
                 });
 
+                const $ChangeBgmInput =document.getElementById(`bgm-input`);
+                
+                $ChangeBgmInput.addEventListener(`change`,(e)=>{
+                     bgm.pause();
+                  // none
+                    
+                });
+
 
                 canvas.addEventListener("mouseleave", function (event) {
                     isDragging = false;
                     canvas.style.cursor = "default";
-                });
+                }); 
 
 
                 canvas.addEventListener("mousemove", function (event) {
@@ -1305,7 +1356,7 @@
                 //2026 08/01 ✓
 
                 //lamp
-                for (let x = -18; x <= 18; x += 36) {
+                for (let x = -20; x <= 20; x += 40) {
                     for (let z = 13; z >= -20; z -= 33) {
                         worldMatrix = scalem(10, 10, 10);
                         worldMatrix = mult(translate(x, 4, z), worldMatrix)
@@ -1383,11 +1434,11 @@
                 worldMatrix = mult(worldMatrix, translate(0, 5, 13));
                 worldMatrix = mult(worldMatrix, scalem(12, 12, 12));
                 gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
-                  gl.uniform1i(texImageLoc1, 0);
-                       gl.uniform1f(matShLoc1, 1);
+                gl.uniform1i(texImageLoc1, 0);
+                gl.uniform1f(matShLoc1, 1);
                 gl.uniform3f(matSpecLoc1, 0, 0, 0);
                 gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-                   gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                gl.uniform3f(matEmitLoc1, 0, 0, 0);
                 gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                     BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
                     swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount + SeeSaw_Head_VertexCount, ArchwayVertexCount);
@@ -1397,11 +1448,11 @@
                 worldMatrix = mult(worldMatrix, translate(5, 0, 15));
                 worldMatrix = mult(worldMatrix, scalem(4, 7, 4));
                 gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
-                 gl.uniform1i(texImageLoc1, 0);
-                      gl.uniform1f(matShLoc1, 1);
+                gl.uniform1i(texImageLoc1, 0);
+                gl.uniform1f(matShLoc1, 1);
                 gl.uniform3f(matSpecLoc1, 0, 0, 0);
                 gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-                  gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                gl.uniform3f(matEmitLoc1, 0, 0, 0);
                 gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                     BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
                     swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount + SeeSaw_Head_VertexCount + ArchwayVertexCount,
@@ -1416,13 +1467,13 @@
                     worldMatrix = mult(worldMatrix, translate(x, 7, -15));
                     worldMatrix = mult(worldMatrix, scalem(8, 15, 8));
                     gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
-                      gl.uniform1i(texImageLoc1, 5);
-                       gl.uniform1i(texImageLoc1, 6);
-                
-                gl.uniform3f(matSpecLoc1, 0, 0, 0);
-                gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-                gl.uniform3f(matEmitLoc1, 0, 0, 0);
-                   gl.uniform1f(matShLoc1, 1);
+                    gl.uniform1i(texImageLoc1, 5);
+                    gl.uniform1i(texImageLoc1, 6);
+
+                    gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                    gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+                    gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                    gl.uniform1f(matShLoc1, 1);
                     gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                         BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
                         swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount + SeeSaw_Head_VertexCount + ArchwayVertexCount +
@@ -1433,13 +1484,13 @@
                     worldMatrix = mult(worldMatrix, translate(x, 7, 9));
                     worldMatrix = mult(worldMatrix, scalem(8, 15, 8));
                     gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
-                       gl.uniform1i(texImageLoc1, 5);
-                       gl.uniform1i(texImageLoc1, 6);
-              
-                gl.uniform3f(matSpecLoc1, 0, 0, 0);
-                gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
-                gl.uniform3f(matEmitLoc1, 0, 0, 0);
-                   gl.uniform1f(matShLoc1, 1);
+                    gl.uniform1i(texImageLoc1, 5);
+                    gl.uniform1i(texImageLoc1, 6);
+
+                    gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                    gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+                    gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                    gl.uniform1f(matShLoc1, 1);
                     gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
                         BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +
                         swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount + SeeSaw_Head_VertexCount + ArchwayVertexCount +
@@ -1449,12 +1500,17 @@
                 //siren
                 worldMatrix = mat4();
                 worldMatrix = mult(worldMatrix, translate(5, 5.0, -20));
-                worldMatrix  = mult(worldMatrix, rotateY(140));
+                worldMatrix = mult(worldMatrix, rotateY(140));
+                swingWorldPos = worldMatrix.slice(0, 3).map((low) => low[3]);
+                sirenWorldPos = worldMatrix;
                 worldMatrix = mult(worldMatrix, scalem(10, 10, 10));
                 gl.uniformMatrix4fv(worldMatLoc1, false, flatten(worldMatrix));
-                 gl.uniform3f(matEmitLoc1, 0, 0, 0);
+                gl.uniform1f(matShLoc1, 1);
+                gl.uniform3f(matSpecLoc1, 0, 0, 0);
+                gl.uniform3f(matAmbiLoc1, 0.2, 0.2, 0.2);
+                if (selectedObjectId == 7 ? gl.uniform3f(matEmitLoc1, 0.7, 0.7, 0) : gl.uniform3f(matEmitLoc1, 0, 0, 0));
                 gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount + SwingVertexCount +
-                    BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount +swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount + SeeSaw_Head_VertexCount + ArchwayVertexCount + StandVertexCount +URP_Tree_VertexCount, sirenVertexCount);
+                    BarrierVertexCount + BenchVertexCount + SeeSawVertexCount + MerryVertexCount + CrossBarVertexCount + LampVertexCount + Swing_body_VertexCount + swing_left_VertexCount + swing_right_VertexCount + lamp_body_VertexCount + lamp_head_VertexCount + SeeSaw_Body_VertexCount + SeeSaw_Head_VertexCount + ArchwayVertexCount + StandVertexCount + URP_Tree_VertexCount, sirenVertexCount);
 
 
                 window.requestAnimationFrame(render);
