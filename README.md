@@ -1,6 +1,6 @@
 ## 2026 CG project
 WebGL과 GLSL을 이용한 웹 애플리케이션 제작하기
-
+![alt text](image.png)
 
 ## 1. 프로젝트 개요
 - 프로젝트명: childhood-recollection
@@ -11,15 +11,36 @@ WebGL을 활용하여 어린시절의 추억을 3D공간으로 구현한 웹 애
 - 개발 인원: [@dbsckd4359]  https://github.com/dbsckd4359/2026_Computer-Graphics
 - 개발 기간: before: 2026/06/01 ~ 2026/06/13 | after: 2026/07/21 ~ ing
 - 핵심 목표:
-     - WebGL 그래픽스 파이프라인의 직접 제어 및 이해
-     - GLSL 셰이더를 통한 실시간 dynamic lighting 연산 구현
+     - WebGL 그래픽스 파이프라인 제어 및 이해
+     - GLSL 셰이더를 통한 실시간 dynamic lighting 연산 구현 
      - 추가사항 구현
+     - 성능 최적화
+     - React를 통한 개편버전 추가
+
+## 핵심파일
+  # scripts
+  - [text](scripts/initShaders2.js): GPU상에서 실행될 셰이더코드를 컴파일하고 링크하여 프로그램 활성화
+  - [text](scripts/MV.js): 행렬과 벡터 연산을 위한 유틸리티 파일
+
+  # shaders
+  - [text](shaders/fog_light_tex_vert.glsl): 프로젝트 요소들의 정점의 위치와 좌표변환
+  - [text](shaders/fog_light_tex_frag.glsl): 픽셀의 최종 색상 결정 
+  - [text](shaders/uniform_color_vert.glsl): picking을 위한 단일 파일 
+  - [text](shaders/uniform_color_frag.glsl): picking을 위한 픽셀의 최종 색상 결정
+
+  # 기타
+  - [text](.gitignore):오브젝트, 스크립트, 이미지 등 이외의 불필요한 산출물 방지
 
 ## 설명
 `어린 시절 회상` 이라는 컨셉으로 배경은 놀이터이며, fog를 사용한 연출로 시작을 하며 특정 위치에 진입하면 기본적인 테마인 `Morning`으로 시작합니다. 이후 타이머의 제한시간동안 기구 탑승과 테마별 분위기를 직관적으로 확인할 수 있습니다. 그외의 테마는 `Sunset`,`Night`모드가 존재합니다.
 
+## 테마
+![alt text](image-3.png)
+![alt text](image-2.png)
+![alt text](image-4.png)
+
 ## 기술
-- HTML5 | CSS3 | JavaScript ES5 ES6 혼합 | GLSL 
+- HTML5 | CSS3 | JavaScript ES5 ES6| GLSL 
 
 - Tools
   - Blender  
@@ -45,9 +66,14 @@ CG_Project.html파일을 브라우저로 열거나, vsCode의 Live Server 확장
 3. 오브젝트 국소 회전 애니메이션 구현 
 - 놀이터 기구 오브젝트의 모델 변환 행렬 독립제어를 통한 부분 회전 애니메이션 구현 ✓
  
-
 4. 유틸리티 영역(타이머)를 전관판 오브젝트로 변경 또는 스피커와 사용자입력을 통한 인터렉션 요소 추가 ✓
+
+5. 사용자 인터랙션을 위한 사이드바 컨텐츠 요소 추가
+- 비 내리는 애니메이션(Particle) 온오프 토글 버튼과 동기화
+- 테마별 조명 및 환경 제어(슬라이더)
+
+- fog기반 컨셉 확장※예정
 
 
 ## 마무리 및 정리
-현 프로젝트는 AI 코드를 지양하고 컴퓨터 그래픽스 API와 수학적 레퍼런스만 참조한 프로젝트입니다
+현 프로젝트는 WebGL 파이프라인에 대한 이해와 학습을 위해 AI 코드를 지양하고 행렬•벡터 연산을 위해 제공되는 유틸리티(MV.js)활용 및 수학적 레퍼런스만 참조한 프로젝트입니다. 
