@@ -5,6 +5,12 @@
     <meta charset="utf-8">
     <title>childhood recollection</title>
     <style>
+
+        :root{
+            --viewport-width : 100vw;
+            --viewport-sidebar-width :17vw; 
+        }
+
         body {
             margin: 0;
             padding: 0;
@@ -26,7 +32,7 @@
             background-color: rgba(24, 24, 27, 0.85);
             left: 50%;
             margin-left: -25vw;
-            border-radius: 20px;
+            border-radius: 10px;
             color: white;
             font-size: 25px;
             display: flex;
@@ -60,16 +66,16 @@
         .canvas-ui {
             /*side-bar*/
             position: absolute;
-            width: 15vw;
+            width: 17vw;
             height: 100vh;
             border: thick rgba(63, 63, 70, 0.6) solid;
             background-color: rgba(24, 24, 27, 0.85);
-            border-radius: 20px;
+           
         }
 
         .head {
             color: white;
-            font-size: 20px;
+
         }
 
         .canvas-popUp {
@@ -116,16 +122,24 @@
 
 
         .menu {
-            padding: 10px;
-            color: green;
-            border: thick rgba(63, 63, 70, 0.6) solid;
+            padding: 10px 20px 10px 20px;
+            color: rgb(222, 222, 222);
+            border: 1px  rgba(63, 63, 70, 0.6) solid;
             background-color: rgba(24, 24, 27, 0.85);
-            font-weight: bold;
-            border-radius: 10px;
-
-
+          
+            white-space: nowrap;
 
         }
+        .menu:hover{
+            color:  rgba(24, 24, 27, 0.85);
+              background-color:  rgb(222, 222, 222);
+        }
+        
+        .menu.selected{/*확정버튼 제어*/
+              color:  rgba(24, 24, 27, 0.85);
+              background-color:  rgb(222, 222, 222);
+        }
+
 
         .ques-toggle {
             padding: 15px;
@@ -183,26 +197,11 @@
             border-radius: 5px;
         }
 
-        .canvas-util-box {
-            margin: 0 50px 0 50px;
-            display: flex;
-            flex-direction: column;
-
-            #bgm-text {
-                text-align: center;
-
-
-
-            }
-
-            #bgm-range {}
-        }
 
         #title {
             font-size: 15px;
             position: absolute;
             right: 0;
-
             bottom: 0;
             line-height: 3;
 
@@ -212,21 +211,120 @@
             border: thin rgba(63, 63, 70, 0.6) solid;
         }
 
-        .outer-page {
+
+
+        .page01 {
+            display: flex;
+            flex-direction: column;
+
+            >#close-btn {
+                width: 40px;
+                height: 40px;
+                color: white;
+                border: thick rgba(63, 63, 70, 0.6) solid;
+                background-color: rgba(24, 24, 27, 0.85);
+                font-weight: bold;
+                border-radius: 10px;
+                align-self: flex-end;
+                margin: 7px 7px 0px 0;
+
+            }
+        }
+
+        .page02 {
+
+
+            >.box-free {
+                display: flex;
+                justify-content: center;
+                margin-top: 2vh;
+            }
+
+
+        }
+
+        .page03 {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            gap: 2vh;
+        }
+
+        .rain-toggle-box {
+            align-self: center;
+            display: flex;
+            gap: 2vw;
+        }
+
+        .fog-control-box {}
+
+        
+        .fog-Color {  /*fog-Color-box*/
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page03_morning {
+            display: flex;
+        
+            flex-direction: column;
+            align-items: center;
+
+            .light-range {
+                padding: 0 30px 0 30px;
+            }
+
+            #shMat01 {
+              
+                padding: 0 30px 0 30px;
+            }
+
+        }
+
+        .page04 {
+            display: flex;
+            flex-direction: column;
+           
+            align-items: center;
+            gap: 5px;
+
+
+            #sunset-amb {
+                padding: 0 30px 0 30px;
+            }
+
+            .sunset-range {
+                padding: 0 30px 0 30px;
+            }
+
+        }
+
+        .page05 {
+            display: flex;
+            margin-top: 2vh;
+        }
+
+        .page06 {
+            display: flex;
+            flex-direction: column;
+            padding: 0 20px 0 20px;
+            gap: 10px;
+            text-align: center;
+        }
+
+        .scene-box {
+            display: flex;
+            flex-direction: column;
+            margin-top: 2vh;
+        }
+
+
+         .outer-page {
             position: absolute;
-            left: 15.5vw;
+            left: calc( var(--viewport-sidebar-width) + 0.5vw);
             bottom: 0;
         }
-
-        #home-btn {
-            padding: 10px;
-            color: white;
-            border: thick rgba(63, 63, 70, 0.6) solid;
-            background-color: rgba(24, 24, 27, 0.85);
-            font-weight: bold;
-            border-radius: 10px;
-
-        }
+        
     </style>
 </head>
 
@@ -248,32 +346,96 @@
         <div class="canvas-ui">
             <div class="head">
 
-                <div class="page1">
-                    <button id="home-btn">home</button>
+                <div class="page01">
+                    <button id="close-btn">—</button>
                 </div>
                 <hr />
-                <div class="page3">
-                    테마
-                    <br>
-                    Sunset: <button class="menu Sunset">click</button>
-                    <br>
-                    Night: <button class="menu Night">click</button>
-                    <br>
-                    Reset: <button class="menu Morning">click</button>
+                <span id="title-free">테마 프리셋</span>
+                <div class="page02">
+                    <div class="box-free ">
+                        <button class="menu Morning">☀️Morning</button>
+                        <br>
+                        <button class="menu Sunset">🌄Sunset</button>
+                        <br>
+                        <button class="menu Night">🌙Night</button>
+                    </div>
                 </div>
                 <hr />
-                <div class="canvas-util-box">
+                <span>환경 제어</span>
+                <div class="page03">
+
+                    <div class="rain-toggle-box">
+                        <span style="font-size: 20px;">🌧️rain</span><button class="rain-btn">toggle</button>
+                    </div>
+
+                    <div class="fog-control-box">
+                        <span>☁️fog</span>
+                        <div> start: 0<input type="range" class="sunset-range01">10</div>
+                        <div> end: 0<input type="range" class="sunset-range02">100</div>
+
+                        <div class="fog-Color">
+                          fog color
+                            <div>R: 0 <input type="range" class="sunset-range03_R">1</div>
+                            <div>G: 0 <input type="range" class="sunset-range03_G">1</div>
+                            <div>B: 0 <input type="range" class="sunset-range03_B">1</div>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+                <span>morning</span>
+                <div class="page03_morning">
+                    <span>light direction </span>
+                    <div> X: 0<input type="range" class="light-rangeX" min="0" max="10.0" value="5.0"
+                            step="0.1"></input>10 </div>
+                    <div> Y: 0<input type="range" class="light-rangeY" min="0" max="10.0" value="5.0"
+                            step="0.1"></input>10</div>
+                    <div> Z: 0<input type="range" class="light-rangeZ" min="0" max="10.0" value="5.0"
+                            step="0.1"></input>10</div>
+
+                    <span>light shiness </span>
+                    <div>0<input type="range" id="shMat01" min="0" max="100" value="30" step="1"> 100</div>
+                </div>
+                <hr />
+
+                <span>sunset</span>
+                <div class="page04">
+                    <span>Ambient</span>
+                    <div>R: 0 <input type="range" id="sunset-amb">1</div>
+                    <div>G: 0 <input type="range" id="sunset-amb">1</div>
+                    <div>B: 0 <input type="range" id="sunset-amb">1</div>
+                </div>
+                <hr>
+
+                <span>Night</span>
+                <div class="page05">
+                    <div class="night-Emit">
+                    <span>Emissive</span>
+                    <div>R: 0<input type="range" class="night-range01_R">1</div>
+                    <div>G: 0<input type="range" class="night-range02_G">1</div>
+                    <div>B: 0<input type="range" class="night-range02_B">1</div>
+                </div>
+                    <div class="night-Shmat">
+                   <span>shiniess </span>
+                        <div style="  white-space: nowrap">0<input type="range" class="night-range02" min="0" max="1000" step="10">1000</div>
+                    </div>
+                </div>
+
+                <hr/>
+
+
+                <div class="page06">
                     <audio src="Audios/background_music.mp3" id="bgm-main" loop></audio>
-                    <span id="bgm-text"> Current Sound</span><br>
-                    <input type="range" id="bgm-range" min="0" max="1.0" value="0.5" step="0.01"></input>
+                    <span id="bgm-text" style="text-align: center; "> volume</span>
+                   <div> 0<input type="range" id="bgm-range" min="0" max="1.0" value="0.5" step="0.01"></input>1</div>
                 </div>
-                <hr />
-                <span id="title">2026_CG-Project</span>
+
+
             </div>
 
         </div>
+
         <div class="outer-page">
-            <button class="ques-toggle" style="color: white;">?</button>
+            <button class="ques-toggle" style="color: white;">? </button>
         </div>
 
 
@@ -629,10 +791,28 @@
 
                 gl.uniform1i(lamp_light_FlugLoc, 0);
 
+                const List_Btn = document.querySelectorAll(`.menu`);
+
+                List_Btn.forEach( (btn)=>{
+                    btn.addEventListener( `click` , e => {
+                        List_Btn.forEach( b => b.classList.remove(`selected`));
+                        e.target.classList.add(`selected`);
+                      
+                    });
+                });
+
+
+
 
 
                 let Infinity = 99999;
                 const $BtnMorning = document.querySelector(`.Morning`);
+                const $dirX = document.querySelector(`.light-rangeX`);
+                const $dirY = document.querySelector(`.light-rangeY`);
+                const $dirZ = document.querySelector(`.light-rangeZ`);
+                let x = lightDir[0];
+                let y = lightDir[1];
+                let z = lightDir[2];
 
                 $BtnMorning.addEventListener(`click`, () => {
                     night_Flug = false;
@@ -643,9 +823,30 @@
                     gl.uniform3f(gl.getUniformLocation(program1, "srcDiff"), 1.0, 1.0, 0.95);
                     gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), 0.2, 0.25, 0.3);
                     gl.uniform1i(lamp_light_FlugLoc, 0);
+
+                    $dirX.addEventListener(`change`, (e) => {
+
+                        gl.uniform3f(gl.getUniformLocation(program1, "lightDir"), Number(e.target.value), y, z);
+
+                    });
+
+                    $dirY.addEventListener(`change`, (e) => {
+
+                        gl.uniform3f(gl.getUniformLocation(program1, "lightDir"), x, Number(e.target.value), z);
+
+                    });
+
+                    $dirZ.addEventListener(`change`, (e) => {
+
+                        gl.uniform3f(gl.getUniformLocation(program1, "lightDir"), x, y, Number(e.target.value));
+
+                    });
+
+
                 });
 
                 const $BtnSunset = document.querySelector(`.Sunset`);
+                const $SunSetAmb = document.getElementById(`sunset-amb`);
 
                 $BtnSunset.addEventListener(`click`, () => {
                     night_Flug = false;
@@ -675,8 +876,8 @@
                     gl.uniform3fv(eyePosLoc02, flatten(vec3(0, 5, 0)), 0);
 
                 });
-
-
+                //특정 테마 클릭 시  남은 테마에 대한 환경제어 비활성화 애니메이션 추가 
+                //테마별 슬라이더 제어 코드
 
 
 
