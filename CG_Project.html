@@ -5,10 +5,10 @@
     <meta charset="utf-8">
     <title>childhood recollection</title>
     <style>
-
-        :root{
-            --viewport-width : 100vw;
-            --viewport-sidebar-width :17vw; 
+        :root {
+            --viewport-width: 100vw;
+            --viewport-sidebar-width: 17vw;
+            --viewport-close-sidebar-width: 3vw;
         }
 
         body {
@@ -63,6 +63,7 @@
         }
 
 
+
         .canvas-ui {
             /*side-bar*/
             position: absolute;
@@ -70,8 +71,56 @@
             height: 100vh;
             border: thick rgba(63, 63, 70, 0.6) solid;
             background-color: rgba(24, 24, 27, 0.85);
-           
+            transition: all 0.5s ease;
+
+            #open-btn {
+                display: none;
+            }
+
         }
+
+        .canvas-ui.close {
+
+            width: calc(var(--viewport-close-sidebar-width));
+
+
+            #close-btn {
+                /*.canvas-ui.close 삭제 후 정상 동작*/
+                display: none;
+            }
+
+            #open-btn {
+                /*> toggle*/
+                display: block;
+
+            }
+
+            .outer-page {
+                left: calc(var(--viewport-close-sidebar-width) + 0.5vw);
+            }
+        }
+
+
+        .canvas-ui.open {
+
+            width: calc(var(--viewport-sidebar-width));
+
+
+            #open-btn {
+                display: none;
+            }
+
+            #close-btn {
+                display: block;
+            }
+
+            .outer-page {
+                left: calc(var(--viewport-sidebar-width) + 0.5vw);
+                /*nesting 규칙 : 연산자 사용시 " + " 간격 확인*/
+            }
+        }
+
+
 
         .head {
             color: white;
@@ -96,7 +145,7 @@
 
             opacity: 0;
             visibility: hidden;
-            transition: all 1s ease;
+            transition: all 0.5s ease;
 
             >.page-body02 {
                 font-size: 20px;
@@ -124,31 +173,26 @@
         .menu {
             padding: 10px 20px 10px 20px;
             color: rgb(222, 222, 222);
-            border: 1px  rgba(63, 63, 70, 0.6) solid;
+            border: 1px rgba(63, 63, 70, 0.6) solid;
             background-color: rgba(24, 24, 27, 0.85);
-          
+
             white-space: nowrap;
 
         }
-        .menu:hover{
-            color:  rgba(24, 24, 27, 0.85);
-              background-color:  rgb(222, 222, 222);
+
+        .menu:hover {
+            color: rgba(24, 24, 27, 0.85);
+            background-color: rgb(222, 222, 222);
         }
-        
-        .menu.selected{/*확정버튼 제어*/
-              color:  rgba(24, 24, 27, 0.85);
-              background-color:  rgb(222, 222, 222);
+
+        .menu.selected {
+            /*확정버튼 제어*/
+            color: rgba(24, 24, 27, 0.85);
+            background-color: rgb(222, 222, 222);
         }
 
 
-        .ques-toggle {
-            padding: 15px;
-            color: green;
-            border: thick rgba(63, 63, 70, 0.6) solid;
-            background-color: rgba(24, 24, 27, 0.85);
-            font-weight: bold;
-            border-radius: 10px;
-        }
+
 
         .canvas-btn {
             position: absolute;
@@ -217,7 +261,8 @@
             display: flex;
             flex-direction: column;
 
-            >#close-btn {
+            #close-btn,
+            #open-btn {
                 width: 40px;
                 height: 40px;
                 color: white;
@@ -230,6 +275,7 @@
 
             }
         }
+
 
         .page02 {
 
@@ -258,15 +304,16 @@
 
         .fog-control-box {}
 
-        
-        .fog-Color {  /*fog-Color-box*/
+
+        .fog-Color {
+            /*fog-Color-box*/
             display: flex;
             flex-direction: column;
         }
 
         .page03_morning {
             display: flex;
-        
+
             flex-direction: column;
             align-items: center;
 
@@ -275,7 +322,7 @@
             }
 
             #shMat01 {
-              
+
                 padding: 0 30px 0 30px;
             }
 
@@ -284,7 +331,7 @@
         .page04 {
             display: flex;
             flex-direction: column;
-           
+
             align-items: center;
             gap: 5px;
 
@@ -319,12 +366,20 @@
         }
 
 
-         .outer-page {
+        .outer-page {
             position: absolute;
-            left: calc( var(--viewport-sidebar-width) + 0.5vw);
+            left: calc(var(--viewport-sidebar-width) + 0.5vw);
             bottom: 0;
         }
-        
+
+        .ques-toggle {
+            padding: 15px;
+            color: white;
+            border: thick rgba(63, 63, 70, 0.6) solid;
+            background-color: rgba(24, 24, 27, 0.85);
+            font-weight: bold;
+            border-radius: 10px;
+        }
     </style>
 </head>
 
@@ -345,9 +400,11 @@
 
         <div class="canvas-ui">
             <div class="head">
-
+    
                 <div class="page01">
-                    <button id="close-btn">—</button>
+                    <button id="close-btn">
+                        < </button>
+                            <button id="open-btn">></button>
                 </div>
                 <hr />
                 <span id="title-free">테마 프리셋</span>
@@ -374,7 +431,7 @@
                         <div> end: 0<input type="range" class="sunset-range02">100</div>
 
                         <div class="fog-Color">
-                          fog color
+                            fog color
                             <div>R: 0 <input type="range" class="sunset-range03_R">1</div>
                             <div>G: 0 <input type="range" class="sunset-range03_G">1</div>
                             <div>B: 0 <input type="range" class="sunset-range03_B">1</div>
@@ -409,35 +466,34 @@
                 <span>Night</span>
                 <div class="page05">
                     <div class="night-Emit">
-                    <span>Emissive</span>
-                    <div>R: 0<input type="range" class="night-range01_R">1</div>
-                    <div>G: 0<input type="range" class="night-range02_G">1</div>
-                    <div>B: 0<input type="range" class="night-range02_B">1</div>
-                </div>
+                        <span>Emissive</span>
+                        <div>R: 0<input type="range" class="night-range01_R">1</div>
+                        <div>G: 0<input type="range" class="night-range02_G">1</div>
+                        <div>B: 0<input type="range" class="night-range02_B">1</div>
+                    </div>
                     <div class="night-Shmat">
-                   <span>shiniess </span>
-                        <div style="  white-space: nowrap">0<input type="range" class="night-range02" min="0" max="1000" step="10">1000</div>
+                        <span>shiniess </span>
+                        <div style="  white-space: nowrap">0<input type="range" class="night-range02" min="0" max="1000"
+                                step="10">1000</div>
                     </div>
                 </div>
 
-                <hr/>
+                <hr />
 
 
                 <div class="page06">
                     <audio src="Audios/background_music.mp3" id="bgm-main" loop></audio>
                     <span id="bgm-text" style="text-align: center; "> volume</span>
-                   <div> 0<input type="range" id="bgm-range" min="0" max="1.0" value="0.5" step="0.01"></input>1</div>
+                    <div> 0<input type="range" id="bgm-range" min="0" max="1.0" value="0.5" step="0.01"></input>1</div>
                 </div>
 
 
             </div>
+             <div class="outer-page">
+                    <button class="ques-toggle">? </button>
+                </div>
 
         </div>
-
-        <div class="outer-page">
-            <button class="ques-toggle" style="color: white;">? </button>
-        </div>
-
 
 
         <div class="canvas-popUp">
@@ -790,19 +846,45 @@
                 gl.uniform3f(gl.getUniformLocation(program1, "matAmbi02"), 0, 0, 0);
 
                 gl.uniform1i(lamp_light_FlugLoc, 0);
+                //===================================================================
+                //2026-8/24 사이드바 기능추가 
+                const $closeBtn = document.getElementById(`close-btn`);
+                const $openBtn = document.getElementById(`open-btn`);
+                const sideBar = document.querySelector(`.canvas-ui`);
+                $closeBtn.addEventListener(`click`, () => {
+                    if (sideBar.classList.contains("open")) {
+                        sideBar.classList.remove(`open`);
+                        sideBar.classList.add(`close`);
+                        return;
+                    }
+                    sideBar.classList.add(`close`);
+                });
 
-                const List_Btn = document.querySelectorAll(`.menu`);
 
-                List_Btn.forEach( (btn)=>{
-                    btn.addEventListener( `click` , e => {
-                        List_Btn.forEach( b => b.classList.remove(`selected`));
-                        e.target.classList.add(`selected`);
-                      
-                    });
+                $openBtn.addEventListener(`click`, () => {
+                    console.log(`클릭`);
+                    if (sideBar.classList.contains("close")) {
+                        sideBar.classList.remove(`close`);
+                        sideBar.classList.add(`open`);
+                        return;
+                    }
+                    sideBar.classList.add(`open`);
+
                 });
 
 
 
+
+
+                const List_Btn = document.querySelectorAll(`.menu`);
+
+                List_Btn.forEach((btn) => {
+                    btn.addEventListener(`click`, e => {
+                        List_Btn.forEach(b => b.classList.remove(`selected`));
+                        e.target.classList.add(`selected`);
+
+                    });
+                });
 
 
                 let Infinity = 99999;
