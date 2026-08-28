@@ -83,7 +83,10 @@
 
             width: calc(var(--viewport-close-sidebar-width));
 
-
+            :not(.page01,.outer-page){
+                visibility: hidden;
+            }
+          
             #close-btn {
                 /*.canvas-ui.close 삭제 후 정상 동작*/
                 display: none;
@@ -92,11 +95,17 @@
             #open-btn {
                 /*> toggle*/
                 display: block;
+                visibility: visible;
 
             }
-
+        
+          
             .outer-page {
+                >.ques-toggle{
+                    visibility: visible;
+                }
                 left: calc(var(--viewport-close-sidebar-width) + 0.5vw);
+               
             }
         }
 
@@ -105,15 +114,18 @@
 
             width: calc(var(--viewport-sidebar-width));
 
-
+          :not(.page01,.outer-page){
+                visibility: visible;
+            }
             #open-btn {
                 display: none;
             }
 
             #close-btn {
                 display: block;
+                   visibility: visible;
             }
-
+           
             .outer-page {
                 left: calc(var(--viewport-sidebar-width) + 0.5vw);
                 /*nesting 규칙 : 연산자 사용시 " + " 간격 확인*/
@@ -402,8 +414,7 @@
             <div class="head">
     
                 <div class="page01">
-                    <button id="close-btn">
-                        < </button>
+                    <button id="close-btn"> < </button>
                             <button id="open-btn">></button>
                 </div>
                 <hr />
