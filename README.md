@@ -1,10 +1,10 @@
 ## 2026 CG project
 WebGL과 GLSL을 이용한 웹 애플리케이션 제작하기
-![alt text](image.png)
+
 
 ## 1. 프로젝트 개요
-- 프로젝트명: childhood-recollection
-WebGL을 활용하여 어린시절의 추억을 3D공간으로 구현한 웹 애플리케이션입니다.
+- 프로젝트명: playground-simulator
+WebGL을 활용하여 3D공간으로 구현한 웹 애플리케이션입니다.
 - 저장소명: 2026_Computer-graphics
 - 성격: OpenGL기반 그래픽스 
 - 개발 형태: JS기반 클라이언트 사이드 3D 그래픽스 렌더링
@@ -15,7 +15,7 @@ WebGL을 활용하여 어린시절의 추억을 3D공간으로 구현한 웹 애
      - GLSL 셰이더를 통한 실시간 dynamic lighting 연산 구현 
      - 추가사항 구현
      - 성능 최적화
-     - React를 통한 개편버전 추가
+     - React 프레임워크를 사용한 개편버전 추가
 
 ## 핵심파일
   # scripts
@@ -35,9 +35,7 @@ WebGL을 활용하여 어린시절의 추억을 3D공간으로 구현한 웹 애
 `어린 시절 회상` 이라는 컨셉으로 배경은 놀이터이며, fog를 사용한 연출로 시작을 하며 특정 위치에 진입하면 기본적인 테마인 `Morning`으로 시작합니다. 이후 타이머의 제한시간동안 기구 탑승과 테마별 분위기를 직관적으로 확인할 수 있습니다. 그외의 테마는 `Sunset`,`Night`모드가 존재합니다.
 
 ## 테마
-![alt text](image-3.png)
-![alt text](image-2.png)
-![alt text](image-4.png)
+
 
 ## 기술
 - HTML5 | CSS3 | JavaScript ES5 ES6| GLSL 
@@ -76,4 +74,4 @@ CG_Project.html파일을 브라우저로 열거나, vsCode의 Live Server 확장
 
 
 ## 마무리 및 정리
-현 프로젝트는 WebGL 파이프라인에 대한 이해와 학습을 위해 AI 코드를 지양하고 행렬•벡터 연산을 위해 제공되는 유틸리티(MV.js)활용 및 수학적 레퍼런스만 참조한 프로젝트입니다. 
+현 프로젝트는 WebGL 파이프라인에 대한 이해와 학습을 위해 라이브러리(three.js)없이 직접 파이프라인을 구축 했으며, AI 코드를 지양하고 행렬•벡터 연산을 위해 제공되는 유틸리티(MV.js)활용 및 수학적 레퍼런스만 참조한 프로젝트입니다. 
