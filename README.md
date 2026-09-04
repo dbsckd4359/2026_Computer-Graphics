@@ -1,6 +1,6 @@
 ## 2026 CG project
 WebGL과 GLSL을 이용한 웹 애플리케이션 제작하기
-
+![imageError]
 
 ## 1. 프로젝트 개요
 - 프로젝트명: playground-simulator
@@ -14,13 +14,17 @@ WebGL을 활용하여 3D공간으로 구현한 웹 애플리케이션입니다.
      - WebGL 그래픽스 파이프라인 제어 및 이해
      - GLSL 셰이더를 통한 실시간 dynamic lighting 연산 구현 
      - 추가사항 구현
+     - 사용자 인터렉션 컨텐츠 추가
      - 성능 최적화
      - React 프레임워크를 사용한 개편버전 추가
 
+## 아키텍처
+
+
 ## 핵심파일
   # scripts
-  - [text](scripts/initShaders2.js): GPU상에서 실행될 셰이더코드를 컴파일하고 링크하여 프로그램 활성화
-  - [text](scripts/MV.js): 행렬과 벡터 연산을 위한 유틸리티 파일
+  - [initShaders2.js](scripts/initShaders2.js): GPU상에서 실행될 셰이더코드를 컴파일하고 링크하여 프로그램 활성화
+  - [MV.js](scripts/MV.js): 행렬과 벡터 연산을 위한 유틸리티 파일
 
   # shaders
   - [text](shaders/fog_light_tex_vert.glsl): 프로젝트 요소들의 정점의 위치와 좌표변환
@@ -70,8 +74,9 @@ CG_Project.html파일을 브라우저로 열거나, vsCode의 Live Server 확장
 - 비 내리는 애니메이션(Particle) 온오프 토글 버튼과 동기화
 - 테마별 조명 및 환경 제어(슬라이더)
 
-- fog기반 컨셉 확장※예정
+
 
 
 ## 마무리 및 정리
 현 프로젝트는 WebGL 파이프라인에 대한 이해와 학습을 위해 라이브러리(three.js)없이 직접 파이프라인을 구축 했으며, AI 코드를 지양하고 행렬•벡터 연산을 위해 제공되는 유틸리티(MV.js)활용 및 수학적 레퍼런스만 참조한 프로젝트입니다. 
+
