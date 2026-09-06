@@ -3,45 +3,31 @@
 
 <head>
     <meta charset="utf-8">
-    <title>childhood recollection</title>
+    <title>playground simulator</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="canvas-box">
 
-        <div class="panel">
-            <div class="text-space">
-                앞으로 이동하세요.
-            </div>
-            <div class="timer-space">
-                타이머영역
-            </div>
-            <button class="start-button">
-                Start
-            </button>
-        </div>
-
 
         <div class="canvas-ui">
             <div class="head">
 
                 <div class="page01">
-                    <button id="close-btn">
-                        < </button>
-                            <button id="open-btn">></button>
-                             
+                    <button id="close-btn"> < </button>
+                    <button id="open-btn">></button>
                 </div>
-            <hr/>
-              <span id="title-free">테마 프리셋</span>
-                <div class="page01-2">
-            
+          
+                <span id="title-free">테마 프리셋</span>
+                <div class="utility-space01">
                     <div class="reset-box">
                         <button class="tool-btn01">🔄thema reset</button>
                         <button class="tool-btn02">🔄all reset</button>
-                        <button class="tool-btn03">💾저장</button>
+                        <button class="tool-btn03">💾save</button>
                     </div>
                 </div>
+
                 <div class="page02">
                     <div class="box-free ">
                         <button class="menu Morning">☀️Morning</button>
@@ -50,11 +36,11 @@
                         <br>
                         <button class="menu Night">🌙Night</button>
                     </div>
-                     <hr/>
-                </div>
-                <hr/>
-                <div class="sidebar-scroll">
                    
+                </div>
+               
+                <div class="sidebar-scroll" >
+
                     <span>환경 제어</span>
 
                     <div class="page03">
@@ -80,14 +66,15 @@
 
 
                             </div>
-                            <div class="current-page03">
+                            <div class="current-fog-value">
                                 <span class="fog_start">start:<span></span></span>
                                 <span class="fog_end">end: <span></span> </span>
                                 <span class="fog_color">color: <span></span> </span>
                             </div>
                         </div>
-                    </div>
-                    <hr />
+                    </div><!--page03-->
+                 
+
                     <span>morning</span>
                     <div class="page03_morning">
                         <span>light direction </span>
@@ -110,7 +97,7 @@
                         </div>
                         <span class="morning-matSh">shiness:<span></span> </span>
                     </div>
-                    <hr />
+                  
 
                     <span>sunset</span>
                     <div class="page04">
@@ -124,7 +111,7 @@
                             <span class="sunset-b">B: <span></span></span>
                         </div>
                     </div>
-                    <hr>
+                
 
                     <span>night</span>
                     <div class="page05">
@@ -139,7 +126,7 @@
                         </div>
                     </div>
 
-                    <hr />
+              
 
                     <span>audio</span>
                     <div class="page06">
@@ -151,12 +138,14 @@
                             <span class="normal-volume">value:<span></span> </span>
                         </div>
                     </div>
-                    <hr />
+                   
+
                     <span>테마 저장소</span>
                     <div class="page07">
-                        <div class="page07-more-box"> <button class="page07-more-btn">+</button></div>
+                        <div class="more-box"> <button class="more-btn">+</button></div>
                         <div class="thema-head"><span id="thema-title">[저장된 목록]</span><span id="thema-cnt">(0)</span>
                         </div>
+                        <!-- 템플릿 요소-->
                         <ul class="thema-box">
 
                             <li class="thema-li">
@@ -196,14 +185,18 @@
                             </li>
 
                         </ul>
-                    </div>
-                </div>
+                    </div><!--page07--> 
+
+                </div> <!--scroll-bar-->
             </div>
         </div>
         <div class="outer-page">
             <button class="ques-toggle">? </button>
         </div>
-    </div>
+        <div class="outer-page02" style="display: none;">
+            이것은 알림모달창입니다
+        </div>
+
 
     <div class="page07-more-popUp">
         <div class="exit-space">
@@ -212,7 +205,7 @@
 
         <div class="thema-head"><span id="thema-title">[저장된 목록]</span><span id="thema-cnt">(0)</span></div>
         <ul class="thema-box">
-
+           
             <li class="thema-li">
 
                 <div class="thema-image"></div>
@@ -256,45 +249,45 @@
                     </div>
                 </div>
             </li>
-             <li class="thema-li">
-                              <div class="thema-image"></div>
-                            <div class="Data_li">
-                                <div class="title-li">
-                                <span>input name2</span>
-                                <span>curr Date2</span>
-                                </div>
-                                <div class ="btn-li">   
-                                <button class="Theme-btn01">적용</button>
-                                   <button class="Theme-btn02">삭제</button>
-                                </div>
-                                </div>
-                        </li>
-                         <li class="thema-li">
-                              <div class="thema-image"></div>
-                            <div class="Data_li">
-                                <div class="title-li">
-                                <span>input name2</span>
-                                <span>curr Date2</span>
-                                </div>
-                                <div class ="btn-li">   
-                                <button class="Theme-btn01">적용</button>
-                                   <button class="Theme-btn02">삭제</button>
-                                </div>
-                                </div>
-                        </li>
-                         <li class="thema-li">
-                              <div class="thema-image"></div>
-                            <div class="Data_li">
-                                <div class="title-li">
-                                <span>input name2</span>
-                                <span>curr Date2</span>
-                                </div>
-                                <div class ="btn-li">   
-                                <button class="Theme-btn01">적용</button>
-                                   <button class="Theme-btn02">삭제</button>
-                                </div>
-                                </div>
-                        </li>
+            <li class="thema-li">
+                <div class="thema-image"></div>
+                <div class="Data_li">
+                    <div class="title-li">
+                        <span>input name2</span>
+                        <span>curr Date2</span>
+                    </div>
+                    <div class="btn-li">
+                        <button class="Theme-btn01">적용</button>
+                        <button class="Theme-btn02">삭제</button>
+                    </div>
+                </div>
+            </li>
+            <li class="thema-li">
+                <div class="thema-image"></div>
+                <div class="Data_li">
+                    <div class="title-li">
+                        <span>input name2</span>
+                        <span>curr Date2</span>
+                    </div>
+                    <div class="btn-li">
+                        <button class="Theme-btn01">적용</button>
+                        <button class="Theme-btn02">삭제</button>
+                    </div>
+                </div>
+            </li>
+            <li class="thema-li">
+                <div class="thema-image"></div>
+                <div class="Data_li">
+                    <div class="title-li">
+                        <span>input name2</span>
+                        <span>curr Date2</span>
+                    </div>
+                    <div class="btn-li">
+                        <button class="Theme-btn01">적용</button>
+                        <button class="Theme-btn02">삭제</button>
+                    </div>
+                </div>
+            </li>
 
         </ul>
 
@@ -305,6 +298,9 @@
             <button class="back-button">⨉</button>
         </div>
         <div class="page-body02">
+            <div class="page-body02-title">
+               조작설명
+            </div>
             <div class="page1">
                 이동
                 <br>case 1: W, S, A, D
@@ -331,6 +327,7 @@
     <div class="canvas-file-btn">
         <input type="file" id="bgm-input">
     </div>
+
     <canvas id="glCanvas"></canvas>
 
     <script type="text/javascript" src="./scripts/initShaders2.js"></script>

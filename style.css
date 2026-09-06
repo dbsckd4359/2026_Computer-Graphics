@@ -1,0 +1,606 @@
+  :root {
+      --viewport-width: 100vw;
+      --viewport-sidebar-width: 17vw;
+      --viewport-close-sidebar-width: 3vw;
+
+      /*button*/
+      --btn_padding: 10px 20px 10px 20px;
+      --btn_color: rgb(222, 222, 222);
+      --btn_border: 1px rgba(63, 63, 70, 0.6) solid;
+      --btn_background-color: rgba(24, 24, 27, 0.85);
+
+      white-space: nowrap;
+
+  }
+
+  body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+  }
+
+  .canvas-box {
+      position: relative;
+      width: 100vw;
+    
+      z-index: 1;
+
+  }
+
+
+ 
+
+  
+  .canvas-ui {
+      /*side-bar*/
+      position: absolute;
+      width: 17vw;
+
+      border: thick rgba(63, 63, 70, 0.6) solid;
+      background-color: rgba(24, 24, 27, 0.85);
+      transition: all 0.5s ease;
+
+      #open-btn {
+          display: none;
+      }
+    [class*="page"]{/*요소 영역 분리를 위한 라인*/
+        border-bottom: thin rgba(63, 63, 70, 0.6) solid;
+        padding-bottom: 10px;
+    }
+
+  }
+
+  .head:not(hr){
+      color: white;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+
+  }
+
+  .canvas-ui.close {
+
+      width: calc(var(--viewport-close-sidebar-width));
+
+      :not(.page01, .outer-page) {
+          visibility: hidden;
+      }
+
+      #close-btn {
+          /*.canvas-ui.close 삭제 후 정상 동작*/
+          display: none;
+      }
+
+      #open-btn {
+          /*> toggle*/
+          display: block;
+          visibility: visible;
+
+      }
+
+
+      ~.outer-page {
+          left: calc(var(--viewport-close-sidebar-width) + 0.5vw);
+      }
+  }
+
+
+  .canvas-ui.open {
+
+      width: calc(var(--viewport-sidebar-width));
+
+      :not(.page01, .outer-page) {
+          visibility: visible;
+      }
+
+      #open-btn {
+          display: none;
+      }
+
+      #close-btn {
+          display: block;
+          visibility: visible;
+      }
+
+      ~.outer-page {
+          left: calc(var(--viewport-sidebar-width) + 0.5vw);
+          /*nesting 규칙 : 연산자 사용시 " + " 간격 확인*/
+      }
+  }
+
+
+ 
+
+
+
+
+
+  .menu {
+      padding: 10px 20px 10px 20px;
+      color: rgb(222, 222, 222);
+      border: 1px rgba(63, 63, 70, 0.6) solid;
+      background-color: rgba(24, 24, 27, 0.85);
+
+      white-space: nowrap;
+
+  }
+
+  .menu:hover {
+      color: rgba(24, 24, 27, 0.85);
+      background-color: rgb(222, 222, 222);
+  }
+
+  .menu.selected {
+      /*확정버튼 제어*/
+      color: rgba(24, 24, 27, 0.85);
+      background-color: rgb(222, 222, 222);
+  }
+
+
+
+  .canvas-btn {
+      position: absolute;
+      visibility: hidden;
+
+
+      &>.choise-btn {
+          border-collapse: collapse;
+          padding: 8px;
+          background-color: rgba(255, 255, 255, 0.7);
+          border: 0 rgba(255, 255, 255, 0.7) solid;
+          font-size: 30px;
+          white-space: nowrap;
+          border-radius: 10px;
+      }
+
+  }
+
+  .back-canvas-btn {
+      position: absolute;
+      width: 10vw;
+      height: 8vh;
+      left: 50%;
+      top: 70%;
+      margin-left: -5vw;
+
+      visibility: hidden;
+
+      &>.choise-btn03 {
+          border-collapse: collapse;
+          padding: 8px;
+          background-color: rgba(255, 255, 255, 0.7);
+          border: 0 rgba(255, 255, 255, 0.7) solid;
+          font-size: 30px;
+          white-space: nowrap;
+          border-radius: 10px;
+      }
+
+  }
+
+  .canvas-file-btn {
+      position: absolute;
+      visibility: hidden;
+      background-color: rgba(255, 255, 255, 0.7);
+      padding: 8px;
+      border-radius: 5px;
+  }
+
+
+  #title {
+      font-size: 15px;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      line-height: 3;
+
+  }
+
+  hr {
+    border: thin rgba(63, 63, 70,0.6) solid;
+      
+  }
+
+
+
+  .page01 {
+
+      display: flex;
+      flex-direction: column;
+
+      #close-btn,
+      #open-btn {
+          width: 40px;
+          height: 40px;
+          color: white;
+          border: thick rgba(63, 63, 70, 0.6) solid;
+          background-color: rgba(24, 24, 27, 0.85);
+          font-weight: bold;
+          border-radius: 10px;
+          align-self: flex-end;
+          margin: 7px 7px 0px 0;
+
+      }
+      
+  }
+
+  .utility-space01 {
+      display: flex;
+
+
+      .reset-box {
+          margin-top: 30px;
+          margin-left: auto;
+
+          [class*="tool-btn"] {
+              padding: 5px 5px 5px 5px;
+              color: var(--btn_color);
+              border: var(--btn_border);
+              background-color: var(--btn_background-color);
+
+          }
+
+      }
+
+  }
+
+  .page02 {
+
+      >.box-free {
+          display: flex;
+          justify-content: center;
+          margin-top: 2vh;
+      }
+
+
+  }
+
+  .page03 {
+
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      gap: 2vh;
+
+
+
+  }
+
+  .current-fog-value {
+      display: flex;
+      justify-content: center;
+      gap: 2vw;
+
+
+  }
+
+
+  .rain-toggle-box {
+      align-self: center;
+      display: flex;
+      gap: 2vw;
+  }
+
+  .fog-control-box {}
+
+
+
+  .fog-Color {
+      /*fog-Color-box*/
+      display: flex;
+      flex-direction: column;
+  }
+
+
+
+  .page03_morning {
+
+      display: flex;
+
+      flex-direction: column;
+      align-items: center;
+
+      .light-range {
+          padding: 0 30px 0 30px;
+      }
+
+      #shMat01 {
+
+          padding: 0 30px 0 30px;
+      }
+
+      [class*="morning"]:not(.morning-matSh) {
+          margin: 0 1vw 0 1vw;
+
+      }
+
+      .morning-matSh {}
+
+  }
+
+  .page04 {
+
+      display: flex;
+      flex-direction: column;
+
+      align-items: center;
+      gap: 5px;
+
+
+      #sunset-amb {
+          padding: 0 30px 0 30px;
+      }
+
+      .sunset-range {
+          padding: 0 30px 0 30px;
+      }
+
+      .current-sunset {
+
+          [class*="sunset"] {
+              margin: 0 1vw 0 1vw;
+          }
+      }
+
+  }
+
+  .page05 {
+
+      margin-top: 1vh;
+      align-items: center;
+
+      >.night-Shmat {
+          text-align: center;
+
+      }
+
+      .current-night {
+          margin-top: 1vh;
+          /*B값 슬라이드값 동기화*/
+      }
+  }
+
+  .page06 {
+
+      display: flex;
+      flex-direction: column;
+      padding: 0 20px 0 20px;
+      gap: 10px;
+      text-align: center;
+      padding: 0;
+
+      .current-volume {
+          text-align: left;
+
+      }
+  }
+
+  .page07 {
+
+      .more-box {
+          text-align: end;
+
+          .more-btn {
+
+              padding: 10px 15px 10px 15px;
+              color: var(--btn_color);
+              border: thick rgba(63, 63, 70, 0.6) solid;
+              border-radius: 10px;
+              background-color: var(--btn_background-color);
+              margin-right: 10px;
+
+          }
+      }
+
+      .page07-more-popUp {}
+  }
+
+  .thema-head {
+      text-align: center;
+  }
+  /*도움말 버튼*/
+ .outer-page {
+      position: absolute;
+      left: calc(var(--viewport-sidebar-width) + 0.5vw);
+      bottom: 0;
+  transition: all 0.5s ease;
+  .ques-toggle {
+      padding: 15px;
+      color: white;
+      border: thick rgba(63, 63, 70, 0.6) solid;
+      background-color: rgba(24, 24, 27, 0.85);
+      font-weight: bold;
+      border-radius: 10px;
+  }
+}
+
+/*우하단 알림 모달창*/
+  .outer-page02{
+    position: absolute;
+    width: 12vw;  
+    height: 7vh;
+    bottom: 0;
+    right: 0;
+    color: white;
+      border: thin rgba(63, 63, 70, 0.6) solid;
+      background-color: rgba(24, 24, 27, 0.85);
+    
+  }
+  
+
+
+
+/*커스텀 테마 더보기 메인박스(ul)*/
+  .thema-box {
+      list-style-type: none;
+      padding: 0%;
+      text-align: center;
+      margin: 0 10px 0 10px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+      height: 53vh;
+      overflow-y: auto;
+
+      #theme-title,
+      #thema-cnt {
+          display: contents;
+
+      }
+
+      >.thema-li {
+        display: flex;
+      border: thick rgba(63, 63, 70, 0.6) solid;
+        margin-top: 1vh;
+           height:18vh;
+
+  >.thema-image {
+          border: 1px lightgray solid;
+          width: 60%;
+      }
+
+          
+          .Data_li {
+              display: flex;
+              flex-direction: column;
+        justify-content: space-evenly;
+              width: 40%;/*title-li와 btn-li 너비 보정 */
+              border: thin rgba(63, 63, 70, 0.6) solid;
+            
+
+              .title-li{  /*텍스트 오버플로우 제어 추가할 것*/
+               height: 70%;
+               display: flex;
+               flex-direction: column;
+                justify-content: center;
+               [class*="title0"]{
+                display: block; 
+      
+               }
+
+              
+                }
+              }
+              .btn-li {
+                width: 100%;
+              }
+
+              [class*="Theme-btn"] {
+                  padding: 5px 10px 5px 10px;
+                  color: var(--btn_color);
+                  border: var(--btn_border);
+                  background-color: var(--btn_background-color);
+              }
+
+
+          }
+
+
+      }
+
+  .sidebar-scroll{
+    overflow-y: auto;
+   
+  }
+
+  
+  .sidebar-scroll::-webkit-scrollbar {
+      width: 10px;
+  }
+
+  .sidebar-scroll::-webkit-scrollbar-track {
+      background: var(--btn_background-color);
+  }
+
+  .sidebar-scroll::-webkit-scrollbar-thumb {
+      background: rgb(117, 116, 116, 0.5);
+      border-radius: 3px;
+  }
+
+  .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgb(117, 116, 116, 1);
+  }
+
+
+
+  .canvas-popUp {
+      /*center*/
+      position: absolute;
+      width: 25vw;
+      height: 60vh;
+
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -20%);
+      color: white;
+      border: thick rgba(63, 63, 70, 0.6) solid;
+      background-color: rgba(24, 24, 27, 0.85);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.5s ease;
+
+      >.page-body02 {
+          font-size: 20px;
+          white-space: nowrap;
+          align-self: center;
+          justify-content: center;
+          /* 08/25 재확인*/
+      }
+
+
+      >.page-body03 {
+          align-self: flex-end;
+
+          &>.back-button {
+              color: white;
+              padding: 10px;
+              border: thick rgba(63, 63, 70, 0.6) solid;
+              background-color: rgba(24, 24, 27, 0.85);
+              border-radius: 10px;
+          }
+      }
+  }
+
+  /*커스텀 테마 더보기 팝업창※이미지 포함 */
+  .page07-more-popUp {
+      position: absolute;
+      width: 35vw;
+      height: 60vh;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      border: thick rgba(63, 63, 70, 0.6) solid;
+      background-color: rgba(24, 24, 27, 0.85);
+      border-radius: 20px;
+       opacity: 0;
+      visibility: hidden;
+      transition: all 0.5s ease;
+
+      .exit-space {
+          text-align: end;
+          margin-right: 10px;
+          margin-top: 10px;
+
+          >.more-exit-btn {
+              color: white;
+              padding: 10px 15px 10px 15px;
+              border: thick rgba(63, 63, 70, 0.6) solid;
+              background-color: rgba(24, 24, 27, 0.85);
+              border-radius: 10px;
+          }
+      }
+
+
+  }
+  /*?버튼 모달창*/
+  .page-body02{
+    display: flex;
+    flex-direction: column;
+    .page-body02-title{
+        text-align: center;
+    }
+  }
