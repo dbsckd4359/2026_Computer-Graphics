@@ -34,20 +34,20 @@ WebGL그래픽스 놀이터 시뮬레이터
 
 ## 테마프리셋 
 ### morning
-  <img src="./readme_images/morning.png" width="880">
+  <img src="./readme_pre/morning.png" width="880">
 
 ### sunset
-  <img src="./readme_images/sunset.png?raw=true" width="880">
+  <img src="./readme_pre/sunset.png?raw=true" width="880">
 
 ### night
-  <img src="./readme_images/night.png?raw=true" width="880">
+  <img src="./readme_pre/night.png?raw=true" width="880">
 
 ## 프리뷰
-![animations](./gifs/preview01.gif)
+![animations](./readme_pre/preview01.gif)
 
-![custumThema01](./gifs/preview02.gif)
+![custumThema01](./readme_pre/preview02.gif)
 
-![custumThema02](./gifs/preview03.gif)
+![custumThema02](./readme_pre/preview03.gif)
 ## 기술
 - HTML5 | CSS3 | JavaScript ES5 ES6| GLSL 
 - Blender  

@@ -12,6 +12,8 @@
 !/shaders/**
 !/readme_images/
 !/readme_images/**
+!/readme_pre/
+!/readme_pre/**
 !/CG_Project.html
 !/main.js
 !/style.css
