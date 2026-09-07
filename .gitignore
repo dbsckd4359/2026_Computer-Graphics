@@ -10,10 +10,10 @@
 !/scripts/**
 !/shaders/
 !/shaders/**
-!/readme_images/
-!/readme_images/**
 !/readme_pre/
 !/readme_pre/**
+!/readme_gif/
+!/readme_gif/preview03.gif
 !/CG_Project.html
 !/main.js
 !/style.css
