@@ -27,7 +27,7 @@ WebGL그래픽스 놀이터 시뮬레이터
   
   - `shaders/fog_light_tex_frag.glsl`: 픽셀의 최종 색상 결정 
  
-  - `.gitignore`:오브젝트, 스크립트, 이미지 등 이외의 불필요한 산출물 방지
+  - `.gitignore`:오브젝트, 스크립트, 이미지 등 핵심 파일들을 제외한 불필요한 산출물 방지
 
 ## 설명
  배경은 놀이터이며, 각 기구 오브젝트를 클릭 시 기구 탑승이 가능하며 좌측 사이드바를 이용하여 테마에 대한 환경제어를 통해 커스텀 테마를 생성할 수 있습니다
@@ -43,11 +43,8 @@ WebGL그래픽스 놀이터 시뮬레이터
   <img src="./readme_pre/night.png?raw=true" width="880">
 
 ## 프리뷰
-![animations](./readme_pre/preview01.gif)
+![custumThema02](./readme_gif/preview03.gif)
 
-![custumThema01](./readme_pre/preview02.gif)
-
-![custumThema02](./readme_pre/preview03.gif)
 ## 기술
 - HTML5 | CSS3 | JavaScript ES5 ES6| GLSL 
 - Blender  
