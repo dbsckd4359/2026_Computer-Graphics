@@ -9,8 +9,7 @@
 
 <body>
     <div class="canvas-box">
-
-
+        
         <div class="canvas-ui">
             <div class="head">
 
@@ -27,7 +26,7 @@
                         <button class="tool-btn03">💾save</button>
                     </div>
                 </div>
-
+                
                 <div class="page02">
                     <div class="box-free ">
                         <button class="menu Morning">☀️Morning</button>
@@ -60,10 +59,15 @@
 
                             <div class="fog-Color">
                                 fog color
-                                <div> 0 <input type="range" class="fog-range02" min="0" max="1" value="0.2"
+                                <div>R: 0 <input type="range" class="fog-range02_R" min="0" max="1" value="0"
                                         step="0.01">1
                                 </div>
-
+                                 <div>G: 0 <input type="range" class="fog-range02_G" min="0" max="1" value="0"
+                                        step="0.01">1
+                                </div>
+                                 <div>B: 0 <input type="range" class="fog-range02_B" min="0" max="1" value="0"
+                                        step="0.01">1
+                                </div>
 
                             </div>
                             <div class="current-fog-value">
@@ -118,7 +122,7 @@
                         <div class="night-Shmat">
                             <span>shiniess </span>
                             <div style="  white-space: nowrap">0<input type="range" id="night-range01" min="0"
-                                    max="1000" value="0" step="1">1000</div>
+                                    max="1000" value="300" step="1">1000</div>
                         </div>
 
                         <div class="current-night">
@@ -148,41 +152,19 @@
                         <!-- 템플릿 요소-->
                         <ul class="thema-box">
 
-                            <li class="thema-li">
-                                <div class="sumnail-box">
-
-                                </div>
-                                <div class="Data_li">
-                                    <span>input name</span>
-                                    <span>curr Date</span>
-                                    <div class="btn-li">
+                            <li class="thema-li-before">
+                             
+                                <div class="Data_li-before">
+                                    <span class ="title01">title</span>
+                                    <span  class = "title02">Date</span>
+                                     </div>
+                                    <div class="btn-li-before">
                                         <button class="Theme-btn01">적용</button>
                                         <button class="Theme-btn02">삭제</button>
                                     </div>
-                                </div>
+                                
                             </li>
-                            <li class="thema-li">
-
-                                <div class="Data_li">
-                                    <span>input name2</span>
-                                    <span>curr Date2</span>
-                                    <div class="btn-li">
-                                        <button class="Theme-btn01">적용</button>
-                                        <button class="Theme-btn02">삭제</button>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="thema-li">
-
-                                <div class="Data_li">
-                                    <span>input name2</span>
-                                    <span>curr Date2</span>
-                                    <div class="btn-li">
-                                        <button class="Theme-btn01">적용</button>
-                                        <button class="Theme-btn02">삭제</button>
-                                    </div>
-                                </div>
-                            </li>
+                        
 
                         </ul>
                     </div><!--page07--> 
@@ -198,13 +180,13 @@
         </div>
 
 
-    <div class="page07-more-popUp">
+    <div class="page07-more-popUp"><!--더보기 모달창-->
         <div class="exit-space">
             <button class="more-exit-btn">X</button>
         </div>
 
         <div class="thema-head"><span id="thema-title">[저장된 목록]</span><span id="thema-cnt">(0)</span></div>
-        <ul class="thema-box">
+        <ul class="thema-box02">
            
             <li class="thema-li">
 
@@ -212,8 +194,8 @@
 
                 <div class="Data_li">
                     <div class="title-li">
-                        <span class="title01">흐릿한 아침풍경</span>
-                        <span class="title02">2026.09.03</span>
+                        <span class="title01">title</span>
+                        <span class="title02"> date</span>
                     </div>
 
                     <div class="btn-li">
@@ -223,71 +205,7 @@
                 </div>
 
             </li>
-            <li class="thema-li">
-                <div class="thema-image"></div>
-                <div class="Data_li">
-                    <div class="title-li">
-                        <span>input name2</span>
-                        <span>curr Date2</span>
-                    </div>
-                    <div class="btn-li">
-                        <button class="Theme-btn01">적용</button>
-                        <button class="Theme-btn02">삭제</button>
-                    </div>
-                </div>
-            </li>
-            <li class="thema-li">
-                <div class="thema-image"></div>
-                <div class="Data_li">
-                    <div class="title-li">
-                        <span>input name2</span>
-                        <span>curr Date2</span>
-                    </div>
-                    <div class="btn-li">
-                        <button class="Theme-btn01">적용</button>
-                        <button class="Theme-btn02">삭제</button>
-                    </div>
-                </div>
-            </li>
-            <li class="thema-li">
-                <div class="thema-image"></div>
-                <div class="Data_li">
-                    <div class="title-li">
-                        <span>input name2</span>
-                        <span>curr Date2</span>
-                    </div>
-                    <div class="btn-li">
-                        <button class="Theme-btn01">적용</button>
-                        <button class="Theme-btn02">삭제</button>
-                    </div>
-                </div>
-            </li>
-            <li class="thema-li">
-                <div class="thema-image"></div>
-                <div class="Data_li">
-                    <div class="title-li">
-                        <span>input name2</span>
-                        <span>curr Date2</span>
-                    </div>
-                    <div class="btn-li">
-                        <button class="Theme-btn01">적용</button>
-                        <button class="Theme-btn02">삭제</button>
-                    </div>
-                </div>
-            </li>
-            <li class="thema-li">
-                <div class="thema-image"></div>
-                <div class="Data_li">
-                    <div class="title-li">
-                        <span>input name2</span>
-                        <span>curr Date2</span>
-                    </div>
-                    <div class="btn-li">
-                        <button class="Theme-btn01">적용</button>
-                        <button class="Theme-btn02">삭제</button>
-                    </div>
-                </div>
-            </li>
+           
 
         </ul>
 
@@ -328,10 +246,20 @@
         <input type="file" id="bgm-input">
     </div>
 
+    <div class = "save-box">
+        <input type="text" placeholder="테마 이름을 입력하세요"  id="save-name-input" />
+        <div class = "save-btn-box">
+        <button class="save-btn01">확인</button>
+        <button class ="save-btn02">취소</button>
+        </div>
+    </div>
+
     <canvas id="glCanvas"></canvas>
 
     <script type="text/javascript" src="./scripts/initShaders2.js"></script>
     <script type="text/javascript" src="./scripts/MV.js"></script>
+       <script type="text/javascript" src="./scripts/rain.js"></script>
+    <script type ="text/javascript" src ="themaStorage.js"></script>
     <script type="module" src="main.js"> </script>
     </div>
 </body>

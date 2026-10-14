@@ -1,3 +1,6 @@
+//import { initThemaStorage, apiSearchThema, apiSaveThema, apiDeleteThema } from './themaStorage.js';
+
+
 var gl;
 let vertices = [];
 var GroundVertexCount = 0, Parent_GroundVertexCount, objVertexCount = 0,
@@ -82,20 +85,25 @@ let change_picking_flug = false; //siren
 //모닝 테마를 위한 구성
 let curr_shMat = 300; // 8/29  카메라 기준 light dir ※수정사항: 특정 위치 기준 dir할수있게 변경
 //let morning_lighting_flug = false;
-
-//fog color  
+let curr_shMat_night;
+//fog Data
 let currStart = 0;
 let currEnd = 0;
-let curr_fog_colorR = 0;
-let curr_fog_colorB = 0;
-let curr_fog_colorG = 0;
+let currColor = 0;
+// fog color
+let curr_fogColor_R, curr_fogColor_G, curr_fogColor_B;
 
 //sunset Ambient 
 let curr_amb_R = 0;
 let curr_amb_G = 0;
 let curr_amb_B = 0;
 
+//rain toggle
+var rainProgram;
+let rainFlug = false;
 
+let themaType; //테마타입 구분
+const thema_id_list = [{}];
 //dynamic view
 function Updata_ViewMatrix(picking_Obj_Id) {
     if (picking_Obj_Id === 0) return; //floor
@@ -166,18 +174,26 @@ await loadOBJModel("models/Stand.obj");
 await loadOBJModel("models/siren.obj");
 
 
-
 init();
 render();
-
-
+rainRender();
+function rainRender(timestamp){
+    if(rainFlug){
+        console.log("ranning!!");
+        gl.useProgram(rainProgram);
+        gl.uniform4f(gl.getUniformLocation(rainProgram,"rainColor"),0,0,1,1);
+        gl.uniform1f(gl.getUniformLocation(rainProgram ,"time"), timestamp * 0.001);
+        gl.drawArrays(gl.POINTS,0, rainVertCount);
+    }
+    requestAnimationFrame(rainRender);
+   }
 
 function init() {
     var canvas = document.getElementById('glCanvas');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    gl = canvas.getContext('webgl2', { antialias: false });
+    gl = canvas.getContext('webgl2', { antialias: false, preserveDrawingBuffer: true });
     if (!gl) {
         alert("WebGL 2 is not available!");
         return;
@@ -215,7 +231,7 @@ function init() {
     worldMatrix = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     worldMatLoc1 = gl.getUniformLocation(program1, "worldMat");
     gl.uniformMatrix4fv(worldMatLoc1, false, worldMatrix);
-
+    
     viewMatrix = lookAt(eye, at, vec3(0, 1, 0));
     viewMatLoc1 = gl.getUniformLocation(program1, "viewMat");
     gl.uniformMatrix4fv(viewMatLoc1, false, flatten(viewMatrix));
@@ -348,6 +364,19 @@ function init() {
     gl.uniform1i(lamp_light_FlugLoc, 0);
 
     //===================================================================
+    /*
+        //페이지로드 시 초기화 및 목록 렌더링
+     window.addEventListener(`DOMContentLoaded`, async () => {
+         await initThemaStorage();
+ 
+         const themas = await apiSearchThema();
+         renderThemas(themas);
+     })
+    */
+
+
+
+
     //2026-8/24 사이드바 기능추가 
     const $closeBtn = document.getElementById(`close-btn`);
     const $openBtn = document.getElementById(`open-btn`);
@@ -390,7 +419,7 @@ function init() {
     //=======================================================================================
     //fog slider
     const fog_List = document.querySelectorAll(`[class*="fog-range01"]`);
-    const fog_Color = document.querySelector(`.fog-range02`); //rgb
+    const fog_Color_list = document.querySelectorAll(`[class*="fog-range02"]`); //rgb
 
     fog_List.forEach(ele => {
         ele.addEventListener(`input`, (e) => {
@@ -413,16 +442,44 @@ function init() {
             document.querySelector(`.fog_start`).lastChild.textContent = ` ${currStart}`;
             return;
         }
+
         currEnd = value;
         gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), currEnd);
         document.querySelector(`.fog_end`).lastChild.textContent = ` ${currEnd}`;
     }
 
-    //fogColor
-    fog_Color.addEventListener(`input`, e => {
-        gl.uniform1f(gl.getUniformLocation(program1, "fogColor"), Number(e.target.value));
-        document.querySelector(`.fog_color`).lastChild.textContent = ` ${e.target.value}`;
-    });
+    //fogColor_rgb
+    fog_Color_list.forEach(ele => {
+        ele.addEventListener(`input`, e => {
+            let value = Number(e.target.value);
+            fogColorValue(e, value)
+        });
+
+    })
+    //사이드바 curr value 시각화 미적용
+    function fogColorValue(event, value) {
+        let str = event.target.className.slice(event.target.className.length - 1, (event.target.className.length - 1) + 1);// 0 base
+        console.log(str);
+
+        switch (str) {
+            case "R":
+                curr_fogColor_R = value;
+                gl.uniform3f(gl.getUniformLocation(program1, "fogColor"), curr_fogColor_R, curr_fogColor_G, curr_fogColor_B);
+                break;
+            case "G":
+                curr_fogColor_G = value;
+                gl.uniform3f(gl.getUniformLocation(program1, "fogColor"), curr_fogColor_R, curr_fogColor_G, curr_fogColor_B);
+                break;
+            case "B":
+                curr_fogColor_B = value;
+                gl.uniform3f(gl.getUniformLocation(program1, "fogColor"), curr_fogColor_R, curr_fogColor_G, curr_fogColor_B);
+                break;
+            default:
+                console.log(`fog-color에 대한 내부 태그가 존재하지않습니다`);
+                break;
+        }
+    }
+
 
 
 
@@ -448,7 +505,7 @@ function init() {
         night_Flug = false;
         gl.clearColor(0.65, 0.85, 1.0, 1.0);
         gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 99998);
-        gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), Infinity);
+       gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), Infinity);
         gl.uniform3f(gl.getUniformLocation(program1, "fogColor"), 0.65, 0.85, 1.0);
         gl.uniform3f(gl.getUniformLocation(program1, "srcDiff"), 1.0, 1.0, 1.0);
         gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), 0.2, 0.25, 0.3);
@@ -460,7 +517,7 @@ function init() {
         $morning_box.style.opacity = "1";
         $sunset_box.style.opacity = `0.2`;
         $night_box.style.opacity = `0.2`;
-
+        themaType = "morning";
 
 
 
@@ -481,8 +538,8 @@ function init() {
             Selected_Dir(dir, dirValue);
         });
     });
-    function Selected_Dir(dir, value) {
 
+    function Selected_Dir(dir, value) {
 
         switch (dir) {
             case "X":
@@ -524,7 +581,7 @@ function init() {
         gl.clearColor(0.62, 0.48, 0.32, 1.0);
         gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 99998);
         gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), Infinity);
-        gl.uniform3f(gl.getUniformLocation(program1, "fogColor"), 0.62, 0.48, 0.32);
+       gl.uniform3f(gl.getUniformLocation(program1, "fogColor"), 0.62, 0.48, 0.32);
         gl.uniform3f(gl.getUniformLocation(program1, "srcDiff"), 0.65, 0.35, 0.15);
         gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), 0.3, 0.15, 0.2);
         gl.uniform1f(matShLoc1, 1);
@@ -534,7 +591,7 @@ function init() {
         $sunset_box.style.opacity = `1`;
         $night_box.style.opacity = `0.2`;
         $morning_box.style.opacity = "0.2";
-
+        themaType = "sunset";
 
 
 
@@ -583,9 +640,9 @@ function init() {
         gl.uniform1i(lamp_light_FlugLoc, 1);
         night_Flug = true;
 
-        // gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 99998);
-        // gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), Infinity);
-        // gl.uniform3f(gl.getUniformLocation(program1, "fogColor"), 0.05, 0.05, 0.12);
+         gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), 99998);
+         gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), Infinity);
+         gl.uniform3f(gl.getUniformLocation(program1, "fogColor"), 0.05, 0.05, 0.12);
         gl.uniform3f(gl.getUniformLocation(program1, "srcDiff"), 1, 1, 1);
         gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), 0.02, 0.02, 0.05);
         gl.uniform1f(matShLoc02, 10);
@@ -594,14 +651,15 @@ function init() {
         $night_box.style.opacity = `1`;
         $sunset_box.style.opacity = `0.2`;
         $morning_box.style.opacity = "0.2";
-
+        themaType = "night";
 
 
     });
 
     $matSh_Night.addEventListener(`input`, e => {
-        gl.uniform1f(matShLoc02, Number(e.target.value));
-        document.querySelector(`.night_matSh`).lastChild.textContent = ` ${e.target.value}`;
+        curr_shMat_night = Number(e.target.value);
+        gl.uniform1f(matShLoc02, curr_shMat_night);
+        document.querySelector(`.night_matSh`).lastChild.textContent = ` ${curr_shMat_night}`;
     });
 
 
@@ -686,7 +744,6 @@ function init() {
         gl.drawArrays(gl.TRIANGLES, GroundVertexCount + SliderVertexCount +
             BarrierVertexCount + BenchVertexCount + MerryVertexCount + CrossBarVertexCount + Swing_body_VertexCount +
             swing_left_VertexCount, swing_right_VertexCount);
-
 
 
 
@@ -874,7 +931,49 @@ function init() {
 
         }
     });
+    //========================================================================================
+    //환경 제어(rain)
+  
+ rainProgram = initShaders(gl,"./shaders/rain_vert.glsl","./shaders/rain_frag.glsl");
+     gl.useProgram(rainProgram);
+     let rainData = initRain();
+        var vbufferId03 = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbufferId03);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(rainData), gl.STATIC_DRAW);
+    
+     gl.enableVertexAttribArray(3);//셰이더파일은 독립적이지 않나?
+     gl.vertexAttribPointer(3,3,gl.FLOAT, false,16,0);
+     
+     gl.enableVertexAttribArray(4);
+    gl.vertexAttribPointer(4,1, gl.FLOAT, false, 16,12);
 
+    var worldMatLoc3 = gl.getUniformLocation(rainProgram,"worldMat");
+    gl.uniformMatrix4fv(worldMatLoc3, false, worldMatrix); 
+
+     var viewMatLoc3 = gl.getUniformLocation(rainProgram,"viewMat");
+    gl.uniformMatrix4fv(viewMatLoc3, false, flatten(viewMatrix)); 
+
+     var projMatLoc3 = gl.getUniformLocation(rainProgram,"projMat");
+    gl.uniformMatrix4fv(projMatLoc3, false,flatten(projectMatrix)); 
+
+    
+
+    gl.uniform1f(gl.getUniformLocation(rainProgram,"FallHeight"),30.0);
+
+   document.querySelector(".rain-btn").addEventListener(`click`, e =>{
+        rainFlug = !rainFlug;
+   });
+
+   function rainRender(timestamp){
+    if(rainFlug){
+        console.log("ranning!!");
+        gl.useProgram(rainProgram);
+        gl.uniform4f(gl.getUniformLocation(rainProgram,"rainColor"),0,0,1,1);
+        gl.uniform1f(gl.getUniformLocation(rainProgram ,"time"), timestamp * 0.001);
+        gl.drawArrays(gl.POINTS,0, rainVertCount);
+    }
+    requestAnimationFrame(rainRender);
+   }
 
     $choiseBtn.addEventListener(`click`, () => { //view translation
         //view transition func
@@ -916,29 +1015,365 @@ function init() {
     });
 
     //테마저장소 흐름요소
-    const utility_list = document.querySelectorAll(`[class*="tool-btn"]`);
-     
+    const utility_list = document.querySelectorAll(`[class*="tool-btn"]`); //상단 유틸리티 
+    utility_list.forEach(ele => {
+        ele.addEventListener(`click`, e => {
+            uility_search(e);
+        })
+    })
+    const $save_box = document.querySelector(`.save-box`);
+
+    //유틸영역 기능 분리함수
+    function uility_search(e) {
+        let searchStr = e.target.className.slice(8, 8 + 2);
+
+        switch (searchStr) {
+            case "01": //thema reset
+
+            case "02": // all reset
+
+            case "03": {
+                $save_box.style.visibility = `visible`;
+                document.getElementById(`save-name-input`).focus();
+                break;
+            }
+
+        }
+    }
+
+
+    document.getElementById(`save-name-input`).addEventListener(`change`, (e) => {
+        e.target.value = e.target.value;
+    });
+
+    const save_btn_List = document.querySelectorAll(`[class*="save-btn"]:not(.save-btn-box)`); //테마 저장 및 취소
+
+    save_btn_List.forEach(ele => {
+        ele.addEventListener(`click`, e => {
+            saveCheck(e);
+        });
+
+    })
+
+    //커스텀 테마 저장여부 최종 모달창
+    function saveCheck(ele) {
+        const SearchBtn = ele.target.textContent;
+        // console.log(`${SearchBtn}`);
+        if (SearchBtn === "확인") {
+            saveBtnClick();
+            $save_box.style.visibility = `hidden`;
+            return;
+        }
+
+        //취소
+        $save_box.style.visibility = `hidden`;
+    }
+
+
+    const $Apply_Thema_btn = document.querySelector(`.Theme-btn01`); //적용
+    const $del_Thema_btn = document.querySelector(`.Theme-btn02`);
+    const $thema_list = document.querySelectorAll(`.thema-box, .thema-box02`);//thema-box02 동기화
+    //사이드바,사이드패널 삭제(공통)
+    //식별자 기반 삭제 로직
+    $thema_list.forEach(ul => {
+
+        ul.addEventListener(`click`, async e => {
+
+            if (e.target.classList.contains(`Theme-btn02`)) {
+                const $target_li = e.target.closest(`li`);
+
+                if ($target_li) {
+                    const target_id = $target_li.dataset.li;
+                    console.log(`삭제li id:${target_id}`);
+                    delete_storages(target_id);
+                    return;
+                }
+                console.log(`타겟li를 찾을 수 없음 `);
+                return;
+            }
+            //테마적용 Theme-btn01
+            const $target_li = e.target.closest(`li`);
+
+            if ($target_li) {
+                const target_id = $target_li.dataset.li;
+                const thema =  await apiSearchEle(target_id);
+                const [ele] = thema;
+                filThema(ele); 
+            }
 
 
 
+        });
+    });
+
+    function fogCheck(thema){ //fog 적용 분리
+       if(thema.value.fog.start != 0 || thema.value.fog.end != Infinity){
+           gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), thema.value.fog.start);
+                gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), thema.value.fog.end);
+                gl.uniform3f(gl.getUniformLocation(program1, "fogColor"), thema.value.fog.color.R, thema.value.fog.color.G, thema.value.fog.color.B);
+       }
+       
+    }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    function filThema(thema) {
+        console.log(thema);
+        if (!thema.themaType || thema.themaType === "") {
+            console.log(`허용되지 않은 흐름입니다.`);
+            return;
+        }
+        //공통 제어
     
+          document.querySelector(".fog-range01_start").setAttribute('value',thema.value.fog.start);
+                document.querySelector(".fog-range01_end").setAttribute('value',thema.value.fog.end);
+                document.querySelector(".fog-range02_R").setAttribute('value', thema.value.fog.color.R);
+                document.querySelector(".fog-range02_G").setAttribute('value', thema.value.fog.color.G);
+                document.querySelector(".fog-range02_B").setAttribute('value',  thema.value.fog.color.B);
+
+        switch (thema.themaType) {
+            
+            case "morning": {
+                $BtnMorning.click();
+               fogCheck(thema);
+                gl.clearColor(...thema.value.clearColor);
+                gl.uniform3f(gl.getUniformLocation(program1, "srcDiff"), ...thema.value.srcDiff); 
+                      gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), ...thema.value.srcAmbi); 
+                        gl.uniform3f(gl.getUniformLocation(program1, "matSpec"), ...thema.value.matSpecLoc1); 
+            
+                gl.uniform3f(gl.getUniformLocation(program1, "lightDir"), thema.value.lightDir[0], thema.value.lightDir[1], thema.value.lightDir[2]);
+                gl.uniform1f(matShLoc1, thema.value.matsh);
+
+                document.querySelector(".light-rangeX").setAttribute('value', thema.value.lightDir[0]);
+                document.querySelector(".light-rangeY").setAttribute('value',  thema.value.lightDir[1]);
+                document.querySelector(".light-rangeZ").setAttribute('value',  thema.value.lightDir[2]);
+                
+                document.getElementById("shMat01").setAttribute('value',  thema.value.matsh);
+              themaType = "morning";
+                break;
+            }
+            case "sunset": {
+               $BtnSunset.click(); 
+              fogCheck(thema);
+             gl.clearColor(...thema.value.clearColor);
+                  gl.uniform3f(gl.getUniformLocation(program1, "srcDiff"), ...thema.value.srcDiff); 
+                     gl.uniform3f(gl.getUniformLocation(program1, "matSpec"), ...thema.value.matspec); 
+              gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), ...thema.value.ambi);
+                gl.uniform1f(matShLoc1, thema.value.matsh);
+               document.querySelector(".sunset-amb_R").setAttribute('value', thema.value.ambi[0]);
+                document.querySelector(".sunset-amb_G").setAttribute('value',  thema.value.ambi[1]);
+                 document.querySelector(".sunset-amb_B").setAttribute('value',  thema.value.ambi[2]);
+                themaType = "sunset";
+                 break;
+            }
+            case "night": {
+               $BtnNight.click();
+               fogCheck(thema);
+              gl.clearColor(...thema.value.clearColor); 
+                   gl.uniform3f(gl.getUniformLocation(program1, "srcDiff"), ...thema.value.srcDiff); 
+                     gl.uniform3f(gl.getUniformLocation(program1, "srcAmbi"), ...thema.value.srcAmbi); 
+                        gl.uniform1f(matShLoc1, thema.value.matsh);
+                        gl.uniform3fv(eyePosLoc02, flatten(thema.value.lampEyePos), 0);
+
+               /*
+                const arr = [...Object.values(thema.value.fog.color)];
+                console.log(typeof(arr));
+                if(arr.forEach( value => value != 0)){
+                   gl.uniform1f(gl.getUniformLocation(program1, "fogStart"), thema.value.fog.start);
+                gl.uniform1f(gl.getUniformLocation(program1, "fogEnd"), thema.value.fog.end);
+                gl.uniform3f(gl.getUniformLocation(program1, "fogColor"), thema.value.fog.color.R, thema.value.fog.color.G, thema.value.fog.color.B); 
+                 */ 
+            }
+
+                themaType = "night";
+                
+                document.getElementById("night-range01").setAttribute('value',  thema.value.matsh);
+                break;
+            
+            default : 
+            console.log('존재하지 않는 테마입니다');
+            break;
+        }
+
+    }
+
+
+
+    async function delete_storages(id) {
+        await apiDeleteThema(id);
+        const themeArr = await apiSearchThema();
+        renderThemas(themeArr);
+    }
+
+
+    const $thema_image = document.querySelector(`.thema-image`); //태그 사이즈 추출용 조작
+    //테마 캡처, 이미지div 비례하는 해상도 조절
+    //  console.log($thema_image.clientWidth);
+    function SaveThema(canvas, width = document.querySelector(`.thema-image`).clientWidth,
+        height = document.querySelector(`.thema-image`).clientHeight) {
+        const CaptureThema = document.createElement(`canvas`);
+
+        CaptureThema.width = width;
+        CaptureThema.height = height;
+
+        const canvas_2D = CaptureThema.getContext(`2d`);
+        canvas_2D.drawImage(canvas, 0, 0, width, height); // 2,3 파라미터 dom을 통한 위치 안착 고안
+
+        return CaptureThema.toDataURL(`image/jpeg`, 0.7);
+
+    }
+
+    //테마 저장 데이터 파이프라인(사이드바유틸영역save)
+    async function saveBtnClick() {
+
+        const saveImage = SaveThema(canvas);
+        console.log(saveImage);
+        const saveName = document.getElementById(`save-name-input`).value || `커스텀 ${Date.now()}`;
+
+
+        const newThema = {
+            name: saveName,
+            saveAt: new Date().toISOString().split('T')[0],
+            themaType: themaType || "",
+            thumNail: saveImage,
+            value: currentSceneValue(themaType)
+
+        };
+
+        const currentThema = await apiSaveThema(newThema);
+        const themas = await apiSearchThema();
+        renderThemas(themas);
+
+    }
+
+
+    function currentSceneValue(thema) {
+        // 각 테마 제어 값 통합
+        if (thema != "morning" && thema != "sunset" && thema != "night") {
+            console.log(`테마에 대한 값을 불러올 수 없습니다`);
+            return;
+        }
+
+        switch (thema) {
+            case "morning": return {
+                clearColor : [0.65, 0.85, 1.0, 1.0],
+                lightDir: vec3(currX, currY, currZ),
+                srcDiff : [1.0,1.0,1.0],
+                srcAmbi : [0.2, 0.25, 0.3],
+                matSpecLoc1 :[0.2, 0.2, 0.2],
+                matsh: curr_shMat,
+                fog: {
+                    start: currStart,
+                    end: currEnd,
+                    color: {
+                        R: curr_fogColor_R,
+                        G: curr_fogColor_G,
+                        B: curr_fogColor_B
+                    }
+                }
+            }
+
+            case "sunset": return {
+                clearColor : [0.62, 0.48, 0.32, 1.0],
+                srcDiff : [ 0.65, 0.35, 0.15],
+                ambi: [curr_amb_R, curr_amb_G, curr_amb_B],
+                matsh :1,
+                matspec : [0,0,0], //
+              
+                fog: {
+                    start: currStart,
+                    end: currEnd,
+                    color: {
+                        R: curr_fogColor_R,
+                        G: curr_fogColor_G,
+                        B: curr_fogColor_B
+                    }
+                }
+            }
+
+            case "night": return {
+                clearColor :  [0.05, 0.05, 0.12, 1.0],
+             srcDiff : [1, 1, 1],
+             srcAmbi :[0.02, 0.02, 0.05] ,
+             matsh: curr_shMat_night,
+             lampEyePos : vec3(0,5,0), //
+                fog: {
+                    start: currStart,
+                    end: currEnd,
+                    color: {
+                        R: curr_fogColor_R,
+                        G: curr_fogColor_G,
+                        B: curr_fogColor_B
+                    }
+                }
+            }
+            default:
+                console.log(`테마 불일치`)
+        }
+
+    }
+
+    //dom구성 렌더링 함수
+    function renderThemas(themas) {
+        const ThemaList = document.querySelector(`.thema-box`);
+        ThemaList.innerHTML = ``;
+
+        //사이드바 테마 저장소 영역 구조
+        themas.forEach(ele => {
+            const $thema_li = document.createElement(`li`);
+            $thema_li.className = "thema-li-before";
+            $thema_li.dataset.li = ele.id;
+            $thema_li.innerHTML = `<div class ="Data_li-before">
+                                   <span class="title01">${ele.name}</span>
+                                     <span class="title02">${ele.saveAt}</span>
+                                    </div>
+                                    <div class="btn-li-before">
+                                     <button class ="Theme-btn01">적용</button>
+                                      <button class ="Theme-btn02">삭제</button>
+                                      </div>`
+
+            ThemaList.appendChild($thema_li);
+        });
+        //더보기 저장소 영역  구조
+        const outer_themaList = document.querySelector(`.thema-box02`);
+        outer_themaList.innerHTML = ``;
+
+        themas.forEach(ele => {
+            const $thema_li02 = document.createElement(`li`);
+            $thema_li02.dataset.li = ele.id;
+            $thema_li02.className = "thema-li";
+            $thema_li02.innerHTML = `<div class="thema-image" style = "background-image :url('${ele.thumNail}')" ></div>
+            <div class="Data_li"> 
+             <div class ="title-li">
+               <span class="title01">${ele.name}</span>
+               <span class="title02">${ele.saveAt}</span>
+               </div>
+            <div class="btn-li">
+              <button class ="Theme-btn01">적용</button>
+              <button class ="Theme-btn02">삭제</button> 
+            </div>
+            </div>`;
+            outer_themaList.appendChild($thema_li02);
+        });
+    }
+
+
+
+
+    // const $save_btn = document.querySelector(``)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     //커스텀테마 더보기 사이드패널
@@ -1075,6 +1510,7 @@ function init() {
                 var newPosX = eye[0] + 2.0 * cameraVec[0];
                 var newPosZ = eye[2] + 2.0 * cameraVec[2];
 
+                //childhood memory
                 if (newPosZ <= 16 && !StartPlug) {
                     StartPlug = true;
                     const $text = document.querySelector(`.text-space`);

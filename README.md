@@ -16,19 +16,51 @@ WebGL그래픽스 놀이터 시뮬레이터
      - 사용자 인터렉션 컨텐츠 추가
      - 리팩토링 및 성능 최적화
 
- 
+## 프로젝트 구조
+```
+2026_CG-project/
+  |── Audios/  # 배경음악 오디오 파일
+  |── gifs/  # 프러블슈팅 관련 gif파일 
+  |── Images/ # 텍스처 및 이미지 리소스
+  |── models/ # 오브젝트 구성
+  |── readme_gif/ # 리드미 프리뷰 gif파일
+  |── readme_pre/ # 리드미  미리보기 이미지파일 
+  |── scripts/ 
+  |  |
+  |  |──initShaders2.js # 셰이더 초기화
+  |  |── MV.js # 행렬, 벡터 연산 
+  |
+  |── shaders/ # glsl 버텍스, 프래그먼트 셰이더 
+  |  |
+  |  |── fog_light_tex_frag.glsl 
+  |  |── fog_light_tex_vert.glsl 
+  |  |── uniform_color_frag.glsl 
+  |  |── uniform_color_vert.glsl 
+  |
+  |── .gitignore # 파일 필터링
+  |── CG_Project.html # 메인 진입점
+  |── main.js # 핵심 렌더링
+  |── mock.json # 초기 목업 데이터
+  |── README.md 
+  |── style.css 
+  |── themaStorage.js #localStorage 기반 테마 데이터 
+   
+```
 ## 핵심파일
   
-  - `scripts/initShaders2.js` : GPU상에서 실행될 셰이더코드를 컴파일하고 링크하여 프로그램 활성화
+  - `/scripts/initShaders2.js` : 셰이더코드 컴파일,링크  유틸리티 파일
   
-  - `scripts/MV.js`: 행렬과 벡터 연산을 위한 유틸리티 파일
+  - `/scripts/MV.js`: 행렬,벡터 연산 유틸리티 파일
   
-  - `shaders/fog_light_tex_vert.glsl`: 프로젝트 요소들의 정점의 위치와 좌표변환
+  - `/shaders/fog_light_tex_vert.glsl`: 프로젝트 요소들의 정점의 위치와 좌표변환
   
-  - `shaders/fog_light_tex_frag.glsl`: 픽셀의 최종 색상 결정 
- 
-  - `.gitignore`:오브젝트, 스크립트, 이미지 등 핵심 파일들을 제외한 불필요한 산출물 방지
+  - `/shaders/fog_light_tex_frag.glsl`: 픽셀의 최종 색상 결정 
 
+  - `/.gitignore`: 오브젝트, 스크립트, 이미지 등 핵심 파일들을 제외한 불필요한 산출물 방지
+ 
+  - `/main.js`: 프로젝트 핵심 모듈 파일
+ 
+  - `/themaStorage.js` : mock.js 초기화 및 테마 데이터 저장/조회/삭제 관리
 ## 설명
  배경은 놀이터이며, 각 기구 오브젝트를 클릭 시 기구 탑승이 가능하며 좌측 사이드바를 이용하여 테마에 대한 환경제어를 통해 커스텀 테마를 생성할 수 있습니다
 
@@ -50,7 +82,7 @@ WebGL그래픽스 놀이터 시뮬레이터
 - Blender  
 
 ## 프로젝트 실행 
-CG_Project.html파일을 브라우저로 열거나, vsCode의 Live Server 확장 프로그램을 사용하여 실행합니다 
+`CG_Project.html`파일을 브라우저로 열거나, vsCode의 Live Server 확장 프로그램을 사용하여 실행합니다 
 
 ## 사용 흐름
 좌하단 ?버튼을 통한 사이드 패널 방식을 통하여 조작에 대한 설명을 볼 수 있으며 각 기구 오브젝트를 클릭하여 탑승이 가능합니다 추가로 사이드바의 환경제어를 통해 원하는 커스텀테마를 만들 수 있으며 초기 테마 설정에 어려움이 있을 경우

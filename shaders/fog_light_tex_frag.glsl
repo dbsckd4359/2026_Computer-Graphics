@@ -7,7 +7,8 @@ uniform float matSh;
 uniform vec3 srcDiff, srcSpec, srcAmbi; // Light-sourse
 uniform vec3 lightDir;                  // directional light
 uniform vec3 eyePos;
-uniform float fogStart, fogEnd, fogColor;
+uniform float fogStart, fogEnd;
+uniform vec3 fogColor;
 
      uniform float uAlpha;   // screen blending
    
