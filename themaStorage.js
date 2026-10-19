@@ -4,15 +4,20 @@ async function initThemaStorage(){
     const init = localStorage.getItem(storage_key);
 
     if(!init){
+       try{
         const mockData = await  fetch(`/2026_Computer-Graphics/mock.json`);
         const initData = await mockData.json();
 
         localStorage.setItem(storage_key, JSON.stringify(initData));
         console.log("초기 목업데이터로 localStorage구성 완료");
-        
+       }catch(e){
+        console.log("mock.json 로드 실패");
+         localStorage.setItem(storage_key,"[]");
+       }
     }
 
 }
+
 //부분 조회
 async function apiSearchEle(id){
     if(!id){
@@ -29,7 +34,7 @@ async function apiSearchEle(id){
 async function apiSearchThema(){
     if(localStorage.getItem(storage_key) === "" ||localStorage.getItem(storage_key) === null){
         console.log(`themaStorage.js ) is data ${localStorage.getItem(storage_key)}`);
-        return;
+        return [];
     }
 
     const data = localStorage.getItem(storage_key);
