@@ -246,7 +246,7 @@
   }
 
   .page02 {
-
+    
       >.box-free {
           display: flex;
           justify-content: center;
@@ -257,7 +257,12 @@
   }
 
   .page03 {
-
+    &>.environment-box{
+        font-size: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 1vh;
+    }
       display: flex;
       flex-direction: column;
       text-align: center;
@@ -276,12 +281,7 @@
   }
 
 
-  .rain-toggle-box {
-      align-self: center;
-      display: flex;
-      gap: 2vw;
-  }
-
+  
   .fog-control-box {}
 
 

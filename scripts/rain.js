@@ -1,7 +1,7 @@
 let rainVertCount =0;
 let rainArr = [];
 function initRain(){
-    const rain_cnt = 1000;
+    const rain_cnt = 4000;
     const area = 60; //-30~30
     const height = 30; //y
 

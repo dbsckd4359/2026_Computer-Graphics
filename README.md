@@ -8,7 +8,7 @@ WebGL그래픽스 놀이터 시뮬레이터
 - 성격: openGL기반 WebGL그래픽스 
 - 개발 형태: JS기반 클라이언트 사이드 3D 그래픽스 렌더링
 - 개발 인원: [@dbsckd4359]  https://github.com/dbsckd4359/2026_Computer-Graphics
-- 개발 기간: before: 2026/06/01 ~ 2026/06/13 | after: 2026/07/21 ~ ing
+- 개발 기간: 2026/07/21 ~ ing
 - 핵심 목표:
      - WebGL 그래픽스 파이프라인 제어 및 이해
      - GLSL 셰이더를 통한 실시간 dynamic lighting 연산 구현 

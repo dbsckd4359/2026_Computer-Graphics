@@ -101,6 +101,9 @@ let curr_amb_B = 0;
 //rain toggle
 var rainProgram;
 let rainFlug = false;
+let rainViewMatrix;
+let rainEyePos = vec3(0,5,0);
+//let eye02 = vec3(0, 5, 0), at02 = vec3(0, 0, 0), cameraVec02 = vec3(0, -0.4472, -0.8944);
 
 let themaType; //테마타입 구분
 const thema_id_list = [{}];
@@ -179,9 +182,15 @@ render();
 rainRender();
 function rainRender(timestamp){
     if(rainFlug){
-        console.log("ranning!!");
+       // console.log("ranning!!");
         gl.useProgram(rainProgram);
-        gl.uniform4f(gl.getUniformLocation(rainProgram,"rainColor"),0,0,1,1);
+          var viewMatLoc3 = gl.getUniformLocation(rainProgram,"viewMat");
+    gl.uniformMatrix4fv(viewMatLoc3, false, flatten(viewMatrix)); 
+
+     var projMatLoc3 = gl.getUniformLocation(rainProgram,"projMat");
+    gl.uniformMatrix4fv(projMatLoc3, false,flatten(projectMatrix)); 
+
+        gl.uniform4f(gl.getUniformLocation(rainProgram,"rainColor"),0.7, 0.8, 4.0, 0.4);
         gl.uniform1f(gl.getUniformLocation(rainProgram ,"time"), timestamp * 0.001);
         gl.drawArrays(gl.POINTS,0, rainVertCount);
     }
@@ -941,6 +950,7 @@ function init() {
     gl.bindBuffer(gl.ARRAY_BUFFER, vbufferId03);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(rainData), gl.STATIC_DRAW);
     
+    //let  rainViewMatrix = lookAt(vec3(0,5,0), at, vec3(0, 1, 0));
      gl.enableVertexAttribArray(3);//셰이더파일은 독립적이지 않나?
      gl.vertexAttribPointer(3,3,gl.FLOAT, false,16,0);
      
@@ -950,6 +960,7 @@ function init() {
     var worldMatLoc3 = gl.getUniformLocation(rainProgram,"worldMat");
     gl.uniformMatrix4fv(worldMatLoc3, false, worldMatrix); 
 
+   // let rainViewMatrix = lookAt(rainEyePos, at02, vec3(0,0,0));
      var viewMatLoc3 = gl.getUniformLocation(rainProgram,"viewMat");
     gl.uniformMatrix4fv(viewMatLoc3, false, flatten(viewMatrix)); 
 
@@ -957,23 +968,14 @@ function init() {
     gl.uniformMatrix4fv(projMatLoc3, false,flatten(projectMatrix)); 
 
     
-
+    gl.uniform3fv(gl.getUniformLocation(rainProgram,"rainPos"),rainEyePos);
     gl.uniform1f(gl.getUniformLocation(rainProgram,"FallHeight"),30.0);
 
    document.querySelector(".rain-btn").addEventListener(`click`, e =>{
         rainFlug = !rainFlug;
    });
 
-   function rainRender(timestamp){
-    if(rainFlug){
-        console.log("ranning!!");
-        gl.useProgram(rainProgram);
-        gl.uniform4f(gl.getUniformLocation(rainProgram,"rainColor"),0,0,1,1);
-        gl.uniform1f(gl.getUniformLocation(rainProgram ,"time"), timestamp * 0.001);
-        gl.drawArrays(gl.POINTS,0, rainVertCount);
-    }
-    requestAnimationFrame(rainRender);
-   }
+  
 
     $choiseBtn.addEventListener(`click`, () => { //view translation
         //view transition func
