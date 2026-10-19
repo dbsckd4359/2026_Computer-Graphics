@@ -4,7 +4,7 @@ async function initThemaStorage(){
     const init = localStorage.getItem(storage_key);
 
     if(!init){
-        const mockData = await  fetch(`./mock.json`);
+        const mockData = await  fetch(`/2026_Computer-Graphics/mock.json`);
         const initData = await mockData.json();
 
         localStorage.setItem(storage_key, JSON.stringify(initData));
