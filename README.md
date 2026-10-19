@@ -81,8 +81,8 @@ WebGL그래픽스 놀이터 시뮬레이터
 - HTML5 | CSS3 | JavaScript ES5 ES6| GLSL 
 - Blender  
 
-## 프로젝트 실행 
-`CG_Project.html`파일을 브라우저로 열거나, vsCode의 Live Server 확장 프로그램을 사용하여 실행합니다 
+## 배포 링크
+`https://dbsckd4359.github.io/2026_Computer-Graphics/` 
 
 ## 사용 흐름
 좌하단 ?버튼을 통한 사이드 패널 방식을 통하여 조작에 대한 설명을 볼 수 있으며 각 기구 오브젝트를 클릭하여 탑승이 가능합니다 추가로 사이드바의 환경제어를 통해 원하는 커스텀테마를 만들 수 있으며 초기 테마 설정에 어려움이 있을 경우
