@@ -1,5 +1,24 @@
 //import { initThemaStorage, apiSearchThema, apiSaveThema, apiDeleteThema } from './themaStorage.js';
 
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+/*2026.10.19 
+커스텀 테마 적용시 배경암전 오류
+환경제어(rain)클릭 후 프리셋을 통한 테마 전환 시 배경lighting,램프lighting 혼동 오류
+*/
+         
+
+
+
+
+
+
+
+
+
+
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 
 var gl;
 let vertices = [];
